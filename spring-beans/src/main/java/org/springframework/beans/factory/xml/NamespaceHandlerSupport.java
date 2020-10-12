@@ -79,7 +79,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * the local name of the supplied {@link Element}.
 	 */
 	@Nullable
+	// 获取命名空间下，对应标签的解析器parser
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
+		// 获取命名空间后面的标签名，例如<mybean:user xxx/>，标签名就是user
 		String localName = parserContext.getDelegate().getLocalName(element);
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {

@@ -107,6 +107,7 @@ class BeanDefinitionValueResolver {
 		// to another bean to be resolved.
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
+			// 如果依赖的属性是引用bean，从beanFactory获取bean
 			return resolveReference(argName, ref);
 		}
 		else if (value instanceof RuntimeBeanNameReference) {
@@ -300,6 +301,7 @@ class BeanDefinitionValueResolver {
 				bean = this.beanFactory.getParentBeanFactory().getBean(refName);
 			}
 			else {
+				// 对于类A和类B的构造器循环依赖，在类B实例化过程中会走到这里解析构造参数：类A的bean引用，但类A还在创建中，所以尝试将类A加入"创建中bean缓存"失败，抛出并发创建bean失败
 				bean = this.beanFactory.getBean(refName);
 				this.beanFactory.registerDependentBean(refName, this.beanName);
 			}

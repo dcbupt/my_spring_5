@@ -149,8 +149,10 @@ class ConstructorResolver {
 				minNrOfArgs = explicitArgs.length;
 			}
 			else {
+				// bean定义的构造参数
 				ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
 				resolvedValues = new ConstructorArgumentValues();
+				// 解析构造参数，如果是bean，调用beanFactory.getBean
 				minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 			}
 
@@ -622,6 +624,9 @@ class ConstructorResolver {
 				resolvedValues.addIndexedArgumentValue(index, valueHolder);
 			}
 			else {
+				// 实例化bean时，需要解析构造参数
+				// 对于构造器循环依赖，因为会再次到bean工厂getBean，再走一遍bean创建流程，因此会抛出并发创建bean异常
+				// 因此无法解决构造器循环依赖
 				Object resolvedValue =
 						valueResolver.resolveValueIfNecessary("constructor argument", valueHolder.getValue());
 				ConstructorArgumentValues.ValueHolder resolvedValueHolder =

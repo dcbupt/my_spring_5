@@ -512,17 +512,22 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
+			// bd最基本的属性是CL加载的类对象
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
-
+			// bean的各种框架属性封装到bd
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
-
+			// bd的元属性，bean属性之外的键值对，通过BeanDefinition的getAttribute获取
 			parseMetaElements(ele, bd);
+			// 解析lookup-method。bean方法声明一个父类返回结果，实际返回bean在lookup-method中声明
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
+			// 解析replaced-method。replaced-method用于完全替换bean方法的实现
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-
+			// 解析构造函数参数
 			parseConstructorArgElements(ele, bd);
+			// 解析bean业务属性
 			parsePropertyElements(ele, bd);
+			// 解析Qualifier，按byName声明要注入的实际bean
 			parseQualifierElements(ele, bd);
 
 			bd.setResource(this.readerContext.getResource());
@@ -1379,15 +1384,18 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
+		// 获取自定义标签的命名空间，Spring默认命名空间是beans
 		String namespaceUri = getNamespaceURI(ele);
 		if (namespaceUri == null) {
 			return null;
 		}
+		// 找到该命名空间的自定义Handler
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		// 通过handler找到自定义parser，解析自定义标签，生成beanDefinition注册到beanFactory
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 
@@ -1413,14 +1421,14 @@ public class BeanDefinitionParserDelegate {
 
 		BeanDefinitionHolder finalDefinition = originalDef;
 
-		// Decorate based on custom attributes first.
+		// Decorate based on custom attributes first. attributes是bean的框架属性
 		NamedNodeMap attributes = ele.getAttributes();
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Node node = attributes.item(i);
 			finalDefinition = decorateIfRequired(node, finalDefinition, containingBd);
 		}
 
-		// Decorate based on custom nested elements.
+		// Decorate based on custom nested elements. children是ele标签和它的所有子标签
 		NodeList children = ele.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
@@ -1441,7 +1449,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	public BeanDefinitionHolder decorateIfRequired(
 			Node node, BeanDefinitionHolder originalDef, @Nullable BeanDefinition containingBd) {
-
+		// 获取标签的命名空间
 		String namespaceUri = getNamespaceURI(node);
 		if (namespaceUri != null && !isDefaultNamespace(namespaceUri)) {
 			NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
