@@ -74,8 +74,10 @@ public abstract class AopNamespaceUtils {
 	public static void registerAspectJAnnotationAutoProxyCreatorIfNecessary(
 			ParserContext parserContext, Element sourceElement) {
 
+		// 注册自动代理创建器APC的bd到beanFactory
 		BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(
 				parserContext.getRegistry(), parserContext.extractSource(sourceElement));
+		// APC的bd增加一些自定义逻辑控制属性，包括是否强制使用CGLIB代理、是否暴露代理类给用户使用
 		useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
 		registerComponentIfNecessary(beanDefinition, parserContext);
 	}
@@ -83,10 +85,15 @@ public abstract class AopNamespaceUtils {
 	private static void useClassProxyingIfNecessary(BeanDefinitionRegistry registry, @Nullable Element sourceElement) {
 		if (sourceElement != null) {
 			boolean proxyTargetClass = Boolean.parseBoolean(sourceElement.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE));
+			// 如果<aop>xml配置里的proxy-target-class属性为true，强制使用CGLIB为目标对象创建代理，默认使用JDK动态代理
+			// CGLIB是在运行期依赖ASM操作字节码生成目标类的子类来实现代理，能代理除final方法（不能被override）外的所有方法，且性能更好
+			// JDK动态代理是在运行期创建接口实现类来代理目标类，因此只能代理接口方法
 			if (proxyTargetClass) {
 				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 			}
 			boolean exposeProxy = Boolean.parseBoolean(sourceElement.getAttribute(EXPOSE_PROXY_ATTRIBUTE));
+			// 支持暴露代理类，业务方可以直接调用AopProxy.currentProxy获取代理类来直接调用代理方法
+			// 目的是解决某些场景下无法代理方法的问题：例如被代理类方法a内部又调用了它的另一个方法b，该方法b的调用是无法被代理的，需要显示获取代理类来调用方法b
 			if (exposeProxy) {
 				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);
 			}

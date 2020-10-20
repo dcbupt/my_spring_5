@@ -7,6 +7,8 @@ public class TestA {
 	//@Autowired
 	private TestB testB;
 
+	private int age;
+
 	public TestB getTestB() {
 		return testB;
 	}
@@ -18,4 +20,12 @@ public class TestA {
 	//public TestA(TestB testB) {
 	//	this.testB = testB;
 	//}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
 }

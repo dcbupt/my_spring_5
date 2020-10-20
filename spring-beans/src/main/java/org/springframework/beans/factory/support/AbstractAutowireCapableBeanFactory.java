@@ -481,7 +481,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// 允许BeanPostProcessors代理bean
+			// 允许bpps直接加载bean，不走Spring的bean加载流程
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -493,6 +493,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// Spring的bean加载流程
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Finished creating instance of bean '" + beanName + "'");
@@ -591,8 +592,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// 如果存在循环依赖，且当前bean被代理，那么SpringIoC管理的实际是被代理的bean
-		// 但依赖它的beans拿到的earlyReference是原始bean，Spring默认不允许这种情况，因此创建当前bean会抛异常
+		/**
+		 * 如果bean在bpps的初始化前置/后置处理时被代理，则exposedObject != bean，且bean工厂管理的实际是被代理的bean
+		 * 当存在循环依赖时，依赖它的beans拿到的earlyReference是原始bean，这与bean工厂实际管理的代理bean不符
+		 * Spring默认不允许这种情况，因此创建当前bean会抛异常
+		 */
 		if (earlySingletonExposure) {
 			// 不创建只查询singletonEarlyReference
 			Object earlySingletonReference = getSingleton(beanName, false);
@@ -1429,7 +1433,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		Set<String> autowiredBeanNames = new LinkedHashSet<>(4);
-		// 获取需要按类型注入的属性，即所有引用类型属性（注意，引用类型属性如果用<property>标签声明，是satisfied，不会查出来）
+		// 获取需要按类型注入的属性，即所有引用类型属性（注意，引用类型属性如果用<property>标签声明，相当于显示声明了要注入的bean，是satisfied，不会查出来）
 		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
 		for (String propertyName : propertyNames) {
 			try {
@@ -1477,9 +1481,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Set<String> result = new TreeSet<>();
 		PropertyValues pvs = mbd.getPropertyValues();
 		PropertyDescriptor[] pds = bw.getPropertyDescriptors();
-		// 返回在PropertyDescriptor但不在PropertyValues的引用类型属性名
-		// pds包含类的所有属性
-		// 对于xml配置bean，pvs包含使用<property>声明的属性
+		/**
+		 * 返回（在PropertyDescriptor但不在PropertyValues 且 不是Aware自动注入property）的引用类型属性名
+		 *
+		 * pds包含类的所有属性
+		 * 对于xml配置bean，pvs包含使用<property>声明的属性
+		 * isExcludedFromDependencyCheck排除使用Aware自动注入的依赖属性
+		 * ApplicationContext会给内部的BeanFactry注册Aware类型接口（存储在ignoredDependencyInterfaces），如果bean实现了其中的Aware接口且包含对应Aware的setter方法，忽略Aware自动注入的属性
+		 */
 		for (PropertyDescriptor pd : pds) {
 			if (pd.getWriteMethod() != null && !isExcludedFromDependencyCheck(pd) && !pvs.contains(pd.getName()) &&
 					!BeanUtils.isSimpleProperty(pd.getPropertyType())) {

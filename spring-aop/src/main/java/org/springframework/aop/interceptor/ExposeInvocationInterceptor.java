@@ -85,6 +85,7 @@ public class ExposeInvocationInterceptor implements MethodInterceptor, PriorityO
 	}
 
 	@Override
+	// 将当前代理方法调用上下文写ThreadLocal，方便在该方法拦截器链上的其他拦截器获取当前代理方法调用上下文
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		MethodInvocation oldInvocation = invocation.get();
 		invocation.set(mi);

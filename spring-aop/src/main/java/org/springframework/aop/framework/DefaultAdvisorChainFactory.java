@@ -48,6 +48,7 @@ import org.springframework.lang.Nullable;
 public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializable {
 
 	@Override
+	// 获取代理方法的拦截器列表
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(
 			Advised config, Method method, @Nullable Class<?> targetClass) {
 
@@ -64,6 +65,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
+					// 在原始bean匹配的所有增强器advisor里筛选与当前调用方法匹配的advisor
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
 						MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 						if (mm.isRuntime()) {

@@ -243,10 +243,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		String beanName = transformedBeanName(name);
 		Object bean;
 
-		// Eagerly check singleton cache for manually registered singletons.
-		// 获取缓存的单例bean或者正在创建中的bean（从early缓存获取，如果不存在，singleFactory创建并存入early缓存）
-		// 对于构造器循环依赖，singleFactory=null，所以sharedInstance还是null，需要再走一遍createBean
-		// 但此时bean又在singletonsCurrentlyInCreation缓存，所以会抛出bean并发创建异常，因此构造器循环依赖无法正常加载bean
+		/**
+		 * 从缓存获取单例bean
+		 *
+		 * 1、对于单例bean，获取缓存的bean或者正在创建中的beanEarlyReference（从early缓存获取，如果不存在，singleFactory创建并存入early缓存）
+		 * 2、因构造器循环依赖产生的bean二次加载（第二次调用getBean），因为此时bean实例化还未完成，所以该bean的singleFactory=null，无法从缓存获取bean，需要再走一遍createBean
+		 * 但此时bean又在singletonsCurrentlyInCreation缓存，所以会抛出bean并发创建异常，因此构造器循环依赖无法正常加载bean
+		 */
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isDebugEnabled()) {
@@ -258,21 +261,21 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-			// 返回实例，有时存在诸如FactoryBean的情况，并不是直接返回实例本身，而是返回getObject方法返回的实例
-			// 当一些bean的实例化规则较复杂时，例如有很多属性要初始化，可以使用FactoryBean来定义bean
-			// 用户定义的bean是FactoryBean的实现类，实现getObject方法返回真正使用的bean
+			/**
+			 * 获取真正要加载的bean实例
+			 *
+			 * 1、当bean为FactoryBean的实现类，该bean并不是真正想加载的bean，需要调用FactoryBean.getObject方法返回真正要加载的实例
+			 * FactoryBean用于一些实例化规则较复杂的bean，例如有很多属性要初始化，可以在factory里完成设置
+			 */
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
 		else {
-			// Fail if we're already creating this bean instance:
-			// We're assumably within a circular reference.
-			// 只有单例模式会解决循环依赖，原型模式产生循环依赖，创建bean实例直接抛异常
+			// 原型模式，Spring不允许bean加载过程中被二次加载（循环依赖时会有这种情况）
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
-			// Check if bean definition exists in this factory.
 			// 当前beanFactory不包含要实例化的beanDefinition，则尝试从parentBeanFactory创建bean实例
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -301,18 +304,24 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
-				// Guarantee initialization of beans that the current bean depends on.
+				/**
+				 * 加载前置依赖的beans
+				 *
+				 * 1、depends-on属性指定前置依赖的某些bean，前置依赖的beans需要在当前bean实例化前完成实例化
+				 * 2、Spring不允许与前置依赖的bean产生循环依赖。对于单例bean（Spring只对单例bean支持普通依赖注入产生的循环依赖），加载前置依赖bean会造成bean被二次加载
+				 * 此时bean还未实例化完成，因此不在单例缓存里也不在earlyReference缓存，走后续创建bean实例流程会抛异常，因为Spring不允许并发创建bean实例
+				 */
 				String[] dependsOn = mbd.getDependsOn();
-				// depends-on属性指定强制依赖的某些bean
-				// 强制依赖的beans需要在当前bean实例化前完成实例化
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
+						// 前置依赖的bean也依赖自己，产生循环依赖
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
 						registerDependentBean(dep, beanName);
 						try {
+							// 加载前置依赖的bean
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -322,7 +331,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
-				// Create bean instance.
+				/**
+				 * 创建bean实例
+				 */
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {

@@ -218,7 +218,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
-				// 记录当前bean正在创建
+				// 正在创建的单例beanName加入缓存
+				// 如果缓存添加失败，说明该bean正在创建中且未实例化完成（实例化完成可以从单例缓存或early缓存获取），Spring不允许并发创建单例bean
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -226,7 +227,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
-					// 创建singleton模式的bean实例
+					// 创建（构造函数实例化+属性初始化）单例bean实例
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -250,7 +251,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
-					// 移除当前bean正在创建状态
+					// 创建单例bean完成，从正在创建的bean缓存移除当前beanName
 					afterSingletonCreation(beanName);
 				}
 				// 加入singleton缓存

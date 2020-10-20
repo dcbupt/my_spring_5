@@ -72,7 +72,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	@Nullable
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-
+		// 获取可以对bean增强的增强器advisor
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
@@ -91,8 +91,12 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
+		// 获取所有xml定义的增强器advisor 和 解析Aspect注解修饰的切面类生成的增强器adivor
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// 基于增强器advisor的切点pointCut的方法匹配器methodMatcher，逐一匹配bean的所有方法，返回匹配结果
+		// 筛选与bean方法匹配成功的增强器advisor
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+		// 如果存在基于Aspect切面类生成的增强器advisor，bean的增强器链表首部添加一个Spring自身的增强器DefaultPointcutAdvisor
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);

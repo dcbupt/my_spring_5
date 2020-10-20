@@ -219,6 +219,9 @@ public abstract class AopUtils {
 	 * @param hasIntroductions whether or not the advisor chain
 	 * for this bean includes any introductions
 	 * @return whether the pointcut can apply on any method
+	 *
+	 * 基于切点的methodMatcher，逐一匹配bean的所有方法，返回匹配结果
+	 * 如果存在匹配成功的方法，说明pointCut所属的增强器可以对bean的方法做增强
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
@@ -227,6 +230,7 @@ public abstract class AopUtils {
 		}
 
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
+		// 切点匹配任何方法时
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
 			return true;
@@ -237,6 +241,10 @@ public abstract class AopUtils {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
 
+		/**
+		 * 获取bean的所有方法（包括实现的接口里定义的所有方法）
+		 * 基于切点PointCut的方法匹配器methodMatcher，对每个bean实现的方法做匹配，如果匹配上，说明当前增强器可以应用于这个bean
+		 */
 		Set<Class<?>> classes = new LinkedHashSet<>();
 		if (!Proxy.isProxyClass(targetClass)) {
 			classes.add(ClassUtils.getUserClass(targetClass));
@@ -285,6 +293,7 @@ public abstract class AopUtils {
 		}
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
+			// 基于切点的methodMatcher，逐一匹配bean的所有方法，返回匹配结果
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {
@@ -317,6 +326,7 @@ public abstract class AopUtils {
 				// already processed
 				continue;
 			}
+			// 基于增强器advisor中切点的methodMatcher，逐一匹配bean的所有方法，如果存在与切点匹配的方法，则说明增强器与bean匹配上
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

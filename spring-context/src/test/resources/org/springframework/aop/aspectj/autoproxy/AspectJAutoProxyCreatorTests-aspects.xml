@@ -31,6 +31,9 @@
 		<property name="name" value="adrian"/>
 	</bean>
 
+	<bean id="testA" class="org.springframework.tests.sample.beans.mine.TestA" scope="singleton" autowire="byType">
+	</bean>
+
 	<bean id="factoryBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 		<property name="targetObject" ref="adrian"/>
 		<property name="targetMethod" value="toString"/>

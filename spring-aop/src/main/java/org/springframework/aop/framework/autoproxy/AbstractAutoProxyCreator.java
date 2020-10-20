@@ -249,7 +249,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
+			// 如果是基础设施bean或者bean就是Aspect注解修饰的切面类，则跳过后续的bean增强代理流程
+			// shouldSkip方法内部会解析所有切面类，针对切面类的每个增强方法生成对应的增强器adivsor，缓存在内存里
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
+				// 缓存无需增强代理的bean
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
 			}
@@ -341,17 +344,36 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+		/**
+		 * 校验当前bean是否需要被代理
+		 *
+		 * 基础设施类型的bean不需要被代理
+		 * 基于BeanFactory获取所有增强器advisor（获取所有xml定义的增强器advisor、以及解析Aspect注解修饰的切面bean并对每个增强方法生成对应的增强器adivor）并缓存在APC里
+		 * 如果当前bean就是增强器所属的aspect切面，则不需要被代理
+		 */
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
+		/**
+		 * 获取与当前bean匹配的增强器
+		 *
+		 * 从APC的缓存里获取所有增强器advisors
+		 * 筛选与bean方法匹配成功的增强器advisor
+		 *     - advisor是对切点、aspect切面类、增强方法（before\after\around...）的封装
+		 *     - 基于增强器advisor中切点的methodMatcher，逐一匹配bean的所有方法，如果存在与切点匹配的方法，则说明增强器与bean匹配上
+		 * 如果bean的增强器中存在基于Aspect切面类生成的增强器advisor，bean的增强器链表首部添加一个Spring自身的增强器DefaultPointcutAdvisor
+		 */
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
+			// 缓存被aop代理的bean
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 创建代理
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+			// 缓存代理类
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
@@ -442,6 +464,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	protected Object createProxy(Class<?> beanClass, @Nullable String beanName,
 			@Nullable Object[] specificInterceptors, TargetSource targetSource) {
 
+		// beanDefinition的属性里填入原始bean的class
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory) {
 			AutoProxyUtils.exposeTargetClass((ConfigurableListableBeanFactory) this.beanFactory, beanName, beanClass);
 		}
@@ -454,6 +477,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
+				// 如果被代理的bean没有实现任何接口，proxyTargetClass=true
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
@@ -532,6 +556,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		Advisor[] advisors = new Advisor[allInterceptors.size()];
 		for (int i = 0; i < allInterceptors.size(); i++) {
+			// 对于一些MethodInterceptor，包装成advisor
 			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
 		}
 		return advisors;

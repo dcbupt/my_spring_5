@@ -68,8 +68,12 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	 * Determine whether the supplied {@link AdvisedSupport} has only the
 	 * {@link org.springframework.aop.SpringProxy} interface specified
 	 * (or no proxy interfaces specified at all).
+	 *
+	 * 如果bean还实现了除SpringProxy外的其他接口，不能使用CgLIB创建代理
+	 * 即，CgLIB只适用于为没有实现任何接口的bean创建代理
 	 */
 	private boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
+		// 获取bean实现的所有接口
 		Class<?>[] ifcs = config.getProxiedInterfaces();
 		return (ifcs.length == 0 || (ifcs.length == 1 && SpringProxy.class.isAssignableFrom(ifcs[0])));
 	}

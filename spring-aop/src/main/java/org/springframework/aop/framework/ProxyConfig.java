@@ -63,6 +63,10 @@ public class ProxyConfig implements Serializable {
 
 	/**
 	 * Return whether to proxy the target class directly as well as any interfaces.
+	 *
+	 * 如果aop标签的proxy-target-class属性为true，proxyTargetClass=true
+	 * 如果被代理的bean没有实现任何接口，proxyTargetClass=true
+	 * proxyTargetClass=true，使用CgLIB创建代理类
 	 */
 	public boolean isProxyTargetClass() {
 		return this.proxyTargetClass;

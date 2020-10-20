@@ -88,18 +88,20 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	/**
 	 * Index from 0 of the current interceptor we're invoking.
 	 * -1 until we invoke: then the current interceptor.
+	 *
+	 * 当前正在调用的方法拦截器下标
 	 */
 	private int currentInterceptorIndex = -1;
 
 
 	/**
 	 * Construct a new ReflectiveMethodInvocation with the given arguments.
-	 * @param proxy the proxy object that the invocation was made on
-	 * @param target the target object to invoke
-	 * @param method the method to invoke
-	 * @param arguments the arguments to invoke the method with
-	 * @param targetClass the target class, for MethodMatcher invocations
-	 * @param interceptorsAndDynamicMethodMatchers interceptors that should be applied,
+	 * @param proxy the proxy object that the invocation was made on 代理类
+	 * @param target the target object to invoke 原始bean
+	 * @param method the method to invoke 被代理的方法
+	 * @param arguments the arguments to invoke the method with 被代理方法的调用参数
+	 * @param targetClass the target class, for MethodMatcher invocations 原始bean类型
+	 * @param interceptorsAndDynamicMethodMatchers interceptors that should be applied,	方法拦截器链
 	 * along with any InterceptorAndDynamicMethodMatchers that need evaluation at runtime.
 	 * MethodMatchers included in this struct must already have been found to have matched
 	 * as far as was possibly statically. Passing an array might be about 10% faster,
@@ -159,6 +161,8 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	@Nullable
 	public Object proceed() throws Throwable {
 		// We start with an index of -1 and increment early.
+		// 所有方法拦截器执行完拦截逻辑都会回调代理方法的proceed方法继续执行拦截器链后面的拦截方法
+		// 代理方法调用上下文维护当前调用的拦截器下标，如果所有方法拦截器都执行完毕，则反射调用原始bean的方法
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			return invokeJoinpoint();
 		}
@@ -182,6 +186,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		else {
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
+			// 执行方法拦截器逻辑
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}

@@ -141,6 +141,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 		super(parent);
 		setConfigLocations(configLocations);
 		if (refresh) {
+			// 初始化Spring容器
 			refresh();
 		}
 	}

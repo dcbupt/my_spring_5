@@ -81,14 +81,20 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @see #isEligibleBean
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
+		// beanFactory里的所有Aspect注解定义的切面类的beanName
 		List<String> aspectNames = this.aspectBeanNames;
 
+		/**
+		 * 获取beanFactory里的所有Aspect注解定义的切面类，缓存切面类的beanName
+		 * 切面类里的每个增强方法，封装成一个增强器adivsor并缓存
+		 */
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
 				if (aspectNames == null) {
 					List<Advisor> advisors = new ArrayList<>();
 					aspectNames = new ArrayList<>();
+					// 获取所有beanName
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 					for (String beanName : beanNames) {
@@ -101,14 +107,18 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						if (beanType == null) {
 							continue;
 						}
+						// 如果是切面类（Aspect注解修饰的类）
+						// 切面类是个容器，包含了切点方法（PointCut）和增强方法（before\around\after...）
 						if (this.advisorFactory.isAspect(beanType)) {
 							aspectNames.add(beanName);
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// 切面类中所有的增强方法封装为一个增强类advisor（advisor包括切面类、切点和增强方法）
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
+									// 如果切面类是单例，缓存生成的所有增强类
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
 								else {
@@ -135,6 +145,9 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 			}
 		}
 
+		/**
+		 * 返回所有切面类封装后的增强器
+		 */
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}

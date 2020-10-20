@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">-->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+<!--<beans>-->
 
 	<bean id="testBean" class="org.springframework.tests.sample.beans.TestBean" scope="singleton">
 		<property name="name"><value>custom</value></property>
@@ -17,6 +23,8 @@
 <!--		<constructor-arg index="0" ref="testA"/>-->
 <!--		<property name="testA" ref="testA"/>-->
 	</bean>
+
+	<aop:aspectj-autoproxy/>
 
 </beans>
 

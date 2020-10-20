@@ -1287,9 +1287,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 				this, requiredType, true, descriptor.isEager());
 		Map<String, Object> result = new LinkedHashMap<>(candidateNames.length);
-		// 从缓存查询引用对象
+		// 从BeanFactory查询依赖对象是否在全局缓存里，如果在，直接返回。缓存在BeanFactory的对象一般是Spring组件
 		for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
-			// 注意，父类对象也可作为注入的bean
 			if (autowiringType.isAssignableFrom(requiredType)) {
 				Object autowiringValue = this.resolvableDependencies.get(autowiringType);
 				autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
