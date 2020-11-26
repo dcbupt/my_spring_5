@@ -138,6 +138,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	// Internal helpers
 
 	private void startBeans(boolean autoStartupOnly) {
+		// 所有的SmartLifecycle bean分组后启动
 		Map<String, Lifecycle> lifecycleBeans = getLifecycleBeans();
 		Map<Integer, LifecycleGroup> phases = new HashMap<>();
 		lifecycleBeans.forEach((beanName, bean) -> {
@@ -170,6 +171,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 		Lifecycle bean = lifecycleBeans.remove(beanName);
 		if (bean != null && bean != this) {
 			String[] dependenciesForBean = getBeanFactory().getDependenciesForBean(beanName);
+			// 优先启动所有Lifycycle bean依赖的beans
 			for (String dependency : dependenciesForBean) {
 				doStart(lifecycleBeans, dependency, autoStartupOnly);
 			}
@@ -179,6 +181,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 					logger.debug("Starting bean '" + beanName + "' of type [" + bean.getClass().getName() + "]");
 				}
 				try {
+					// 启动lifecycle bean
 					bean.start();
 				}
 				catch (Throwable ex) {

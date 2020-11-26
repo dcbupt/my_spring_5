@@ -524,8 +524,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			/**
 			 * 创建一个内部的DefaultListableBeanFactory容器
 			 *
-			 * 子类可定制容器属性、定制用于解析xml配置文件和注册beanDefinition的XmlBeanDefinitionReader属性
-			 * beanFactory已经完成了bean定义的解析和注册
+			 * 模板方法，由子类实现
+			 * 返回的beanFactory已经完成了beanDefinition的解析和注册
 			 */
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
@@ -535,15 +535,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
-				// 提供组件方法，由Spring容器AbstractApplicationContext的子类处理beanFactory
+				// 提供模板方法，由AbstractApplicationContext的子类继续定制beanFactory
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
-				// 调用bfpps执行beanFactory后置处理，配置方式注册的bfpp需要走bean加载获取实例
+				// 调用bfpp执行beanFactory后置处理
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				// 注册bpps到BeanFactory，配置方式注册的bpp需要走bean加载然后再注册
+				// 注册bpp到BeanFactory，配置方式注册的bpp需要走bean加载然后再注册
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -610,6 +610,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Initialize any placeholder property sources in the context environment.
 		// 该方法可被子类覆写来定制哪些环境变量是必须的
+		// demo:
+		// getEnvironment().getRequiredProperty("VAR");
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:

@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.aop.interceptor.SimpleTraceInterceptor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.beans.factory.config.CustomEditorConfigurer;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -183,11 +184,14 @@ public class BeanMethodPolymorphismTests {
 		public TestBean testBean() {
 			return new TestBean();
 		}
+
 	}
 
 
 	@Configuration
 	static class Config extends BaseConfig {
+		@Bean
+		public CustomEditorConfigurer myCustomEditorConfigurer() {return new CustomEditorConfigurer();}
 	}
 
 

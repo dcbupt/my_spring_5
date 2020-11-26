@@ -48,6 +48,11 @@ import org.springframework.lang.Nullable;
  */
 final class PostProcessorRegistrationDelegate {
 
+	/**
+	 *
+	 * @param beanFactory
+	 * @param beanFactoryPostProcessors 显式注册到Spring容器的bfpp
+	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
@@ -59,6 +64,13 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
+			/**
+			 * 先执行类型为`BeanDefinitionRegistryPostProcessor`的bfpp，调用它的方法`postProcessBeanDefinitionRegistry`，用于在beanDefinition加载bean前，预处理beanDefinition
+			 * `BeanDefinitionRegistryPostProcessor`是`BeanFactoryPostProcessor`的子接口
+			 *
+			 * `ConfigurationClassPostProcessor`是Spring注册到beanFactory的`BeanDefinitionRegistryPostProcessor`
+			 * 调用它的`postProcessBeanDefinitionRegistry`方法注册通过ConfigurationBean（@Configuration或@Component修饰的bean）发现的所有beanDefinition到BeanFactory
+			 */
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
@@ -78,6 +90,7 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			// 获取Spring注册的BeanDefinitionRegistryPostProcessor，且需要实现PriorityOrdered，这里会获取到ConfigurationClassPostProcessor bean
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
@@ -88,10 +101,13 @@ final class PostProcessorRegistrationDelegate {
 			}
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
 			registryProcessors.addAll(currentRegistryProcessors);
+			// 执行Spring注册的BeanDefinitionRegistryPostProcessor，这里会执行ConfigurationClassPostProcessor的postProcessBeanDefinitionRegistry
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
+			// 因为ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry会注册从ConfigurationBean发现的所有bean
+			// 所以需要筛选出新增的BeanDefinitionRegistryPostProcessor，调用它的postProcessBeanDefinitionRegistry
 			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
 				if (!processedBeans.contains(ppName) && beanFactory.isTypeMatch(ppName, Ordered.class)) {
@@ -123,7 +139,13 @@ final class PostProcessorRegistrationDelegate {
 			}
 
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
+			/**
+			 * 再调用所有BeanDefinitionRegistryPostProcessor的postProcessBeanFactory
+			 */
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+			/**
+			 * 最后调用显式注册到ApplicationContext的所有常规BeanFactoryPostProcessor的postProcessBeanFactory方法
+			 */
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
 		}
 
@@ -134,6 +156,9 @@ final class PostProcessorRegistrationDelegate {
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let the bean factory post-processors apply to them!
+		/**
+		 * 调用所有配置方式注册的BeanFactoryPostProcessor的postProcessBeanFactory方法
+		 */
 		String[] postProcessorNames =
 				beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 

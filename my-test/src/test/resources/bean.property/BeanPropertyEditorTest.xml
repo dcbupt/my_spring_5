@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+
+	<import resource="classpath*:common/CommonConfig.xml"/>
+
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="propertyEditorRegistrars">
+			<array>
+				<ref bean="myPropertyEditorRegistrar"/>
+			</array>
+		</property>
+	</bean>
+
+	<bean id="myPropertyEditorRegistrar" class="bean.property.MyPropertyEditorRegistrar"/>
+
+	<bean id="bossBean" class="bean.property.BossBean">
+		<property name="name" value="boss_dc"/>
+		<property name="car" value="保时捷,100,100"/>
+	</bean>
+
+</beans>
+

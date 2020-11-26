@@ -24,6 +24,9 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
+ * 可枚举（管理）beanDefinition、bean实例的bean工厂
+ * 该接口基于beanDefinitions集合定义了一些条件筛选bean的方法，因此需要实现类预加载beanDefinitions
+ *
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
  * that can enumerate all their bean instances, rather than attempting bean lookup
  * by name one by one as requested by clients. BeanFactory implementations that

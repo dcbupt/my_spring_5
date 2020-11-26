@@ -118,6 +118,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 	/**
 	 * Register each bean definition within the given root {@code <beans/>} element.
+	 *
+	 * root可以理解为beans标签
 	 */
 	protected void doRegisterBeanDefinitions(Element root) {
 		// Any nested <beans> elements will cause recursion in this method. In
@@ -309,12 +311,14 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	/**
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
+	 *
+	 * @param ele bean标签元素
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-		// 解析Document封装的bean定义信息，生成beanDefinition
+		// 解析bean标签，封装的bean定义信息，生成beanDefinition
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
-			// 解析bean的自定义属性标签
+			// 解析bean标签（如果存在）包含的自定义属性或自定义子标签，自定义的含义是标签或属性的命名空间不在Spring的beans空间下
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance. 注册beanDefinition到beanFactory

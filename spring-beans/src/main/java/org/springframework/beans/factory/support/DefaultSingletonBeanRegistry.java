@@ -220,6 +220,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				}
 				// 正在创建的单例beanName加入缓存
 				// 如果缓存添加失败，说明该bean正在创建中且未实例化完成（实例化完成可以从单例缓存或early缓存获取），Spring不允许并发创建单例bean
+				// 如果存在并发创建单例bean，说明可能存在构造器注入产生的循环依赖导致bean出现二次加载
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -426,8 +427,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Determine whether the specified dependent bean has been registered as
 	 * dependent on the given bean or on any of its transitive dependencies.
-	 * @param beanName the name of the bean to check
-	 * @param dependentBeanName the name of the dependent bean
+	 * @param beanName the name of the bean to check 当前正在加载的bean
+	 * @param dependentBeanName the name of the dependent bean 前置依赖的bean
 	 * @since 4.0
 	 */
 	protected boolean isDependent(String beanName, String dependentBeanName) {
@@ -446,6 +447,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			return false;
 		}
 		if (dependentBeans.contains(dependentBeanName)) {
+			// 当前bean依赖的dependentBean也依赖自己，返回true
 			return true;
 		}
 		for (String transitiveDependency : dependentBeans) {

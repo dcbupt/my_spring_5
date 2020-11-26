@@ -319,6 +319,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						// 建立产生依赖的bean和被依赖的bean之间的关联关系，维护在bean工厂
 						registerDependentBean(dep, beanName);
 						try {
 							// 加载前置依赖的bean
@@ -1202,6 +1203,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if (!this.propertyEditorRegistrars.isEmpty()) {
 			for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
 				try {
+					// 调用beanFactory的注册器propertyEditorRegistrars，注册PropertyEditor到BeanWrapper
 					registrar.registerCustomEditors(registry);
 				}
 				catch (BeanCreationException ex) {

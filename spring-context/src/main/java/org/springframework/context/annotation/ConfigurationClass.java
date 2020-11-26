@@ -56,6 +56,7 @@ final class ConfigurationClass {
 	@Nullable
 	private String beanName;
 
+	// 如果importedBy非空，说明这里的ConfigurationClass是Import方式导入的ConfigurationBean，importedBy就是引入Import的那个ConfigurationBean
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 
 	private final Set<BeanMethod> beanMethods = new LinkedHashSet<>();
@@ -77,6 +78,7 @@ final class ConfigurationClass {
 	 */
 	public ConfigurationClass(MetadataReader metadataReader, String beanName) {
 		Assert.notNull(beanName, "Bean name must not be null");
+		// ConfigurationBean的注解信息
 		this.metadata = metadataReader.getAnnotationMetadata();
 		this.resource = metadataReader.getResource();
 		this.beanName = beanName;
@@ -120,6 +122,7 @@ final class ConfigurationClass {
 	public ConfigurationClass(Class<?> clazz, @Nullable ConfigurationClass importedBy) {
 		this.metadata = new StandardAnnotationMetadata(clazz, true);
 		this.resource = new DescriptiveResource(clazz.getName());
+		// 这里的ConfigurationClass是Import方式导入的ConfigurationBean，importedBy就是引入Import的那个ConfigurationBean
 		this.importedBy.add(importedBy);
 	}
 

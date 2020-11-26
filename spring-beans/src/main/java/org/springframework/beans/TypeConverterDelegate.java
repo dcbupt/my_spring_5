@@ -153,6 +153,7 @@ class TypeConverterDelegate {
 			@Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
 
 		// Custom editor for this type?
+		// 寻找该类型的自定义属性编辑器
 		PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
 
 		ConversionFailedException conversionAttemptEx = null;
@@ -175,6 +176,7 @@ class TypeConverterDelegate {
 		Object convertedValue = newValue;
 
 		// Value not of required type?
+		// 使用beanWrapper的customEditor编辑属性
 		if (editor != null || (requiredType != null && !ClassUtils.isAssignableValue(requiredType, convertedValue))) {
 			if (typeDescriptor != null && requiredType != null && Collection.class.isAssignableFrom(requiredType) &&
 					convertedValue instanceof String) {
@@ -187,6 +189,7 @@ class TypeConverterDelegate {
 				}
 			}
 			if (editor == null) {
+				// 不存在类型匹配的customEditor，寻找ResourceEditorRegistrar注册的该类型的的属性编辑器
 				editor = findDefaultEditor(requiredType);
 			}
 			convertedValue = doConvertValue(oldValue, convertedValue, requiredType, editor);

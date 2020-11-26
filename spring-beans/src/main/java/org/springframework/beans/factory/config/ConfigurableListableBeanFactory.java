@@ -24,6 +24,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.lang.Nullable;
 
 /**
+ * 基于可枚举beanDefinition（Listable的含义）的基础上，增加了一些接口能力，包括可提前基于beanDefinition实例化单例bean、获取某个bean的beanDefinition
+ *
  * Configuration interface to be implemented by most listable bean factories.
  * In addition to {@link ConfigurableBeanFactory}, it provides facilities to
  * analyze and modify bean definitions, and to pre-instantiate singletons.

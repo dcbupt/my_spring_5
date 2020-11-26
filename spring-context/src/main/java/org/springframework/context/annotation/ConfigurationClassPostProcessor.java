@@ -229,7 +229,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					"postProcessBeanFactory already called on this post-processor against " + registry);
 		}
 		this.registriesPostProcessed.add(registryId);
-
+		// 注册通过ConfigurationBean发现的所有bean到BeanFactory
 		processConfigBeanDefinitions(registry);
 	}
 
@@ -258,19 +258,29 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	/**
 	 * Build and validate a configuration model based on the registry of
 	 * {@link Configuration} classes.
+	 *
+	 * 注册通过ConfigurationBean发现的所有bean到BeanFactory
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
 		String[] candidateNames = registry.getBeanDefinitionNames();
 
+		/**
+		 * 获取需要处理的ConfigurationBean
+		 *
+		 * Spring将ConfigurationBean分为两类：FullConfigurationBean（@Configuration修饰的bean）、LiteConfiguraitonBean（@Component或@Import修饰的bean）
+		 * 因此@Component修饰的bean也会被当做@Configuration修饰的配置类一样处理，所以@Import注解、@ComponentScan注解也可以加在@Component的bean上，效果一样的
+		 */
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			// 从bd里判断bean已经是Full或LiteConfigurationBean了，说明ConfigurationBean已经被处理过了，跳过即可
 			if (ConfigurationClassUtils.isFullConfigurationClass(beanDef) ||
 					ConfigurationClassUtils.isLiteConfigurationClass(beanDef)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
+			// 校验bean是否为FullConfigurationBean或LiteConfiguraitonBean，如果是，bd的attr里打Full或Lite标
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
@@ -282,6 +292,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		}
 
 		// Sort by previously determined @Order value, if applicable
+		// ConfigurationBean按@Order注解的value排序
 		configCandidates.sort((bd1, bd2) -> {
 			int i1 = ConfigurationClassUtils.getOrder(bd1.getBeanDefinition());
 			int i2 = ConfigurationClassUtils.getOrder(bd2.getBeanDefinition());
@@ -306,6 +317,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		}
 
 		// Parse each @Configuration class
+		// 创建一个ConfigurationBeanParser
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
@@ -313,6 +325,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
+			// 解析ConfigurationBean
 			parser.parse(candidates);
 			parser.validate();
 
@@ -325,6 +338,14 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
+			/**
+			 * 注册在ConfigurationBean里定义的bean
+			 *
+			 * ConfigurationBean里定义的bean通过上面parse.parse方法解析获取，来自这么几个途径：
+			 * 1、@ComponentScan扫描的@Component和@Configuration
+			 * 2、@Import导入的bean，可能是ImportBeanDefinitionRegistrar，需要回调registrar的注册方法注册真正的bean。也可能是ImportSelector方式导入的bean，也可能就是一个Bean
+			 * 3、@Bean方法定义的bean
+			 */
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 

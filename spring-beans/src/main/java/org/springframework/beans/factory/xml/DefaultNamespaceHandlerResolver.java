@@ -125,7 +125,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 			return (NamespaceHandler) handlerOrClassName;
 		}
 		else {
-			// 第一次读取handler，先实例化handler并调用init方法注册自定义parser
+			// 第一次读取handler，先实例化handler并调用init方法注册自定义的标签解析器parser
 			String className = (String) handlerOrClassName;
 			try {
 				Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);

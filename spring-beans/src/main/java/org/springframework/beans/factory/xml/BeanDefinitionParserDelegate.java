@@ -422,6 +422,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		String beanName = id;
+		// 如果bean的id为空，取第一个name作为beanName
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 			beanName = aliases.remove(0);
 			if (logger.isDebugEnabled()) {
@@ -495,6 +496,7 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * Parse the bean definition itself, without regard to name or aliases. May return
 	 * {@code null} if problems occurred during the parsing of the bean definition.
+	 * @param ele bean标签
 	 */
 	@Nullable
 	public AbstractBeanDefinition parseBeanDefinitionElement(
@@ -517,17 +519,17 @@ public class BeanDefinitionParserDelegate {
 			// bean的各种框架属性封装到bd
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
-			// bd的元属性，bean属性之外的键值对，通过BeanDefinition的getAttribute获取
+			// 解析bean的meta子标签属性（bean属性之外的键值对）并添加到bd。通过bd的getMetadataAttribute可以获取meta属性
 			parseMetaElements(ele, bd);
 			// 解析lookup-method。bean方法声明一个父类返回结果，实际返回bean在lookup-method中声明
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
 			// 解析replaced-method。replaced-method用于完全替换bean方法的实现
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-			// 解析构造函数参数
+			// 解析bean的constructor-arg子标签得到构造函数参数，添加到bd.constructorArgumentValues
 			parseConstructorArgElements(ele, bd);
-			// 解析bean业务属性
+			// 解析bean的property子标签得到业务属性，添加到bd.propertyValues
 			parsePropertyElements(ele, bd);
-			// 解析Qualifier，按byName声明要注入的实际bean
+			// 解析bean的qualifier子标签，添加到bd.qualifiers。qualifier的作用是按byName声明要注入的实际bean
 			parseQualifierElements(ele, bd);
 
 			bd.setResource(this.readerContext.getResource());
@@ -650,6 +652,9 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse the meta elements underneath the given element, if any.
+	 * 解析并保存当前标签的meta子标签元属性
+	 * @param ele 当前标签
+	 * @param attributeAccessor bd或PropertyValue
 	 */
 	public void parseMetaElements(Element ele, BeanMetadataAttributeAccessor attributeAccessor) {
 		NodeList nl = ele.getChildNodes();
@@ -840,6 +845,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse a property element.
+	 * @param ele <property>标签元素
 	 */
 	public void parsePropertyElement(Element ele, BeanDefinition bd) {
 		String propertyName = ele.getAttribute(NAME_ATTRIBUTE);
@@ -855,6 +861,7 @@ public class BeanDefinitionParserDelegate {
 			}
 			Object val = parsePropertyValue(ele, bd, propertyName);
 			PropertyValue pv = new PropertyValue(propertyName, val);
+			// 解析property的子标签meta，得到业务属性的元属性
 			parseMetaElements(ele, pv);
 			pv.setSource(extractSource(ele));
 			bd.getPropertyValues().addPropertyValue(pv);
@@ -1378,7 +1385,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse a custom element (outside of the default namespace).
-	 * @param ele the element to parse
+	 * @param ele the element to parse 自定义的顶层root标签
 	 * @param containingBd the containing bean definition (if any)
 	 * @return the resulting bean definition
 	 */
@@ -1411,7 +1418,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Decorate the given bean definition through a namespace handler, if applicable.
-	 * @param ele the current element
+	 * @param ele the current element，bean标签
 	 * @param originalDef the current bean definition
 	 * @param containingBd the containing bean definition (if any)
 	 * @return the decorated bean definition

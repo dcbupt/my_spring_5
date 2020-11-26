@@ -77,6 +77,11 @@ abstract class ConfigurationClassUtils {
 	 * @param beanDef the bean definition to check
 	 * @param metadataReaderFactory the current factory in use by the caller
 	 * @return whether the candidate qualifies as (any kind of) configuration class
+	 *
+	 * 校验bean是否为ConfigurationBean，然后对ConfigurationBean打标
+	 * ConfigurationBean：
+	 * 注解bean包含@Configuration注解，是FullConfigurationBean
+	 * 注解bean包含@Component或@Import注解，是LiteConfigurationBean
 	 */
 	public static boolean checkConfigurationClassCandidate(BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 		String className = beanDef.getBeanClassName();
@@ -85,6 +90,8 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
+		// 如果bean是注解方式注册的（例如@Configuration注解或者@Component注解），从beanDefinition里获取bean的注解信息
+		// 注意，业务层bean都是通过Spring启动类中注册的，例如启动配置类、配置类中@ComponentScan扫描的bean
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
@@ -108,10 +115,11 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-
+		// 注解bean包含@Configuration注解，是FullConfigurationBean，bd的attr里打full标
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// 注解bean包含@Component或@Import注解，是LiteConfigurationBean，bd的attr里打lite标
 		else if (isLiteConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -120,6 +128,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
+		// 注解bean是FullConfigurationBean或者是LiteConfigurationBean，且包含@Order注解，bd的attr里打order的value标
 		Integer order = getOrder(metadata);
 		if (order != null) {
 			beanDef.setAttribute(ORDER_ATTRIBUTE, order);

@@ -212,6 +212,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 			throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
 					"No property '" + propertyName + "' found");
 		}
+		// 要转换成的bean属性实际类型
 		TypeDescriptor td = cachedIntrospectionResults.getTypeDescriptor(pd);
 		if (td == null) {
 			td = cachedIntrospectionResults.addTypeDescriptor(pd, new TypeDescriptor(property(pd)));

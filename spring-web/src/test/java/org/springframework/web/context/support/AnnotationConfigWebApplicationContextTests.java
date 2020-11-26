@@ -23,6 +23,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -42,6 +43,7 @@ public class AnnotationConfigWebApplicationContextTests {
 
 		TestBean bean = ctx.getBean(TestBean.class);
 		assertNotNull(bean);
+		System.out.println(bean.getVal());
 	}
 
 	@Test
@@ -82,18 +84,28 @@ public class AnnotationConfigWebApplicationContextTests {
 		assertThat(ctx.containsBean("custom-myConfig"), is(true));
 	}
 
-
 	@Configuration("myConfig")
 	static class Config {
 
 		@Bean
 		public TestBean myTestBean() {
-			return new TestBean();
+			TestBean tb = new TestBean();
+			tb.setVal("hehe");
+			return tb;
 		}
+
 	}
 
-
 	static class TestBean {
+		private String val;
+
+		public String getVal() {
+			return val;
+		}
+
+		public void setVal(String val) {
+			this.val = val;
+		}
 	}
 
 }

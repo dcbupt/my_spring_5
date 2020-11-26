@@ -51,6 +51,7 @@ public interface ImportSelector {
 	 * Select and return the names of which class(es) should be imported based on
 	 * the {@link AnnotationMetadata} of the importing @{@link Configuration} class.
 	 * @return the class names, or an empty array if none
+	 * @param importingClassMetadata 引入@Import注解的ConfigurationBean的所有注解信息
 	 */
 	String[] selectImports(AnnotationMetadata importingClassMetadata);
 

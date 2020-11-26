@@ -1,0 +1,30 @@
+description = "My Test"
+
+apply plugin: "groovy"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(":spring-beans"))
+    compile(project(":spring-context"))
+    compile 'org.codehaus.groovy:groovy-all:2.4.14'
+}
+
+// This module does joint compilation for Java and Groovy code with the compileGroovy task.
+sourceSets {
+    main.groovy.srcDirs += "src/main/java"
+    main.java.srcDirs = []
+}
+
+compileGroovy {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
+
+// This module also builds Kotlin code and the compileKotlin task naturally depends on
+// compileJava. We need to redefine dependencies to break task cycles.
+compileGroovy.dependsOn = compileGroovy.taskDependencies.values - "compileJava"
+compileKotlin.dependsOn(compileGroovy)
+compileKotlin.classpath += files(compileGroovy.destinationDir)
