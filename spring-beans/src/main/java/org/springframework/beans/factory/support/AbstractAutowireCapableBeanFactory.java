@@ -1339,11 +1339,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}
 			}
 		}
-		// bean定义的业务属性
+		// <property>标签声明的属性
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
-		// 按bean类型或按beanName注入依赖的bean实例（不包括<property>修饰的依赖，property修饰的属性值在applyPropertyValues方法里被填充）
+		// byName或byType加载没有通过<property>声明的依赖bean，存入bd.pv
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
 			// Add property values based on autowire by name if applicable.
@@ -1370,6 +1370,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					if (bp instanceof InstantiationAwareBeanPostProcessor) {
 						InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
 						// 回调`InstantiationAwareBeanPostProcessor.postProcessPropertyValues`方法修改beanDefinition.propertyValues
+						// 这里会调用AutowiredAnnotationBeanPostProcessor
+						// 加载@Autowired注解修饰的依赖bean并注入。或解析@Value注解的表达式（SPEL或环境变量占位符）的值并注入
 						pvs = ibp.postProcessPropertyValues(pvs, filteredPds, bw.getWrappedInstance(), beanName);
 						if (pvs == null) {
 							return;
@@ -1398,7 +1400,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected void autowireByName(
 			String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
-		// 返回没有用xml的<property>声明的引用类型属性名
+		// 返回没有用<property>声明的引用类型属性名
 		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
 		for (String propertyName : propertyNames) {
 			// beanFactory是否包含bean定义或者bean已经加载并缓存在beanFactory

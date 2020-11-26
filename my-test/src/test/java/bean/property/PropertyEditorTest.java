@@ -34,7 +34,7 @@ public class PropertyEditorTest {
 	 * @apiNote PropertyEditor不适用于注解@Bean配置的bean
 	 *
 	 * 原因：
-	 * @Bean配置的bean，bd.pv为空。调用@Bean修饰的工厂方法实例化。bean属性在工厂方法里赋值。不过如果是需要autowire的依赖，在polulate阶段依然会自动注入
+	 * @Bean配置的bean，bd.pv为空。调用@Bean修饰的工厂方法实例化。bean属性在工厂方法里赋值
 	 */
 	@Test
 	@SuppressWarnings("resource")
