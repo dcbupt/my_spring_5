@@ -190,6 +190,8 @@ class BeanDefinitionValueResolver {
 		else if (value instanceof TypedStringValue) {
 			// Convert value to target type here.
 			TypedStringValue typedStringValue = (TypedStringValue) value;
+			// 使用beanExpressionResolver解析xml配置的表达式字面量
+			// ApplicationContext给beanFactory注册的beanExpressionResolver是StandardBeanExpressionResolver，它内部使用SpelParser解析spel表达式
 			Object valueObject = evaluate(typedStringValue);
 			try {
 				Class<?> resolvedTargetType = resolveTargetType(typedStringValue);

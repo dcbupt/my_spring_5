@@ -129,7 +129,14 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 		this.expressionParser = expressionParser;
 	}
 
-
+	/**
+	 * 解析SPEL表达式
+	 * SPEL表达式的上下文是beanFactory
+	 * @param value the value to check
+	 * @param evalContext the evaluation context
+	 * @return
+	 * @throws BeansException
+	 */
 	@Override
 	@Nullable
 	public Object evaluate(@Nullable String value, BeanExpressionContext evalContext) throws BeansException {

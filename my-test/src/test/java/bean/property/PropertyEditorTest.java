@@ -8,11 +8,12 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+/**
+ * @implNote 自定义PropertyEditor来编辑<property>设置的属性字面量或转换为bean属性的实际类型对象
+ * @implNote see AbstractAutowireCapableBeanFactory#applyPropertyValues
+ */
 public class PropertyEditorTest {
 
-	/**
-	 * 自定义PropertyEditor来编辑<property>设置的属性字面量或转换为bean属性的实际类型对象
-	 */
 	@Test
 	@SuppressWarnings("resource")
 	public void propertyEditorTest() {
@@ -30,10 +31,10 @@ public class PropertyEditorTest {
 	}
 
 	/**
-	 * PropertyEditor不适用于注解@Bean配置的bean
-	 * @Bean配置的bean，bd.pv为空
-	 * 调用@Bean修饰的工厂方法实例化。bean属性在工厂方法里赋值
-	 * 如果是需要autowire的依赖，在polulate阶段依然会自动注入
+	 * @apiNote PropertyEditor不适用于注解@Bean配置的bean
+	 *
+	 * 原因：
+	 * @Bean配置的bean，bd.pv为空。调用@Bean修饰的工厂方法实例化。bean属性在工厂方法里赋值。不过如果是需要autowire的依赖，在polulate阶段依然会自动注入
 	 */
 	@Test
 	@SuppressWarnings("resource")

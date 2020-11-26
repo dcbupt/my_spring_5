@@ -1646,6 +1646,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				String propertyName = pv.getName();
 				Object originalValue = pv.getValue();
 				// 解析xml配置中的属性值，如果依赖的属性是引用bean，byName从beanFactory获取bean
+				// 配置的属性值如果使用SPEL表达式，会使用注册到beanFactory的StandardBeanExpressionResolver（ApplicationContext会显式注册）解析表达式的值
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
 				boolean convertible = bw.isWritableProperty(propertyName) &&
