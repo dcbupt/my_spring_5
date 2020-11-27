@@ -580,8 +580,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			/**
 			 * 填充bean属性值
 			 *
-			 * 属性赋值前，byType或byName自动注入bean
-			 * 属性赋值前，PropertyEditor对bd.pv中的<property>属性字面量编辑或类型转换
+			 * 属性赋值前，根据xml配置的autowiredMode，byType或byName加载非<property>声明的bean，插入bd.pv
+			 * 注入@Autowired的依赖、注入计算后的@Value表达式（SPEL、环境变量占位符）的值
+			 * 属性赋值前，计算<property>中使用的SPEL表达式的值，byName加载<property>声明的依赖bean，放入bd.pv
+			 * 属性赋值前，使用BeanWrapper的属性编辑器中与bean属性类型匹配的PropertyEditor对bd.pv中的<property>属性字面量编辑或转换为bean的实际属性类型，更新bd.pv
+			 *
+			 * 基于bd.pv，填充bean属性值
  			 */
 			populateBean(beanName, mbd, instanceWrapper);
 			// 初始化bean
@@ -1343,7 +1347,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
-		// byName或byType加载没有通过<property>声明的依赖bean，存入bd.pv
+		// 属性赋值前，根据xml配置的autowiredMode，byType或byName加载非<property>声明的bean，插入bd.pv
+		// byType注入时，会筛选出所有类型匹配或是其父类的beans。如果超过一个候选bean，选择@Primary注解修饰的bean，否则抛出NoUniqueBeanDefinitionException异常 ✨
+		// <property>标签中声明的bean，以`RuntimeBeanReference`类型存储在beanDefinition.propertyValues中
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
 			// Add property values based on autowire by name if applicable.
@@ -1370,8 +1376,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					if (bp instanceof InstantiationAwareBeanPostProcessor) {
 						InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
 						// 回调`InstantiationAwareBeanPostProcessor.postProcessPropertyValues`方法修改beanDefinition.propertyValues
-						// 这里会调用AutowiredAnnotationBeanPostProcessor
-						// 加载@Autowired注解修饰的依赖bean并注入。或解析@Value注解的表达式（SPEL或环境变量占位符）的值并注入
+						// 回调`AutowiredAnnotationBeanPostProcessor`，注入@Autowired的依赖、注入计算后的@Value表达式（SPEL、环境变量占位符）的值
 						pvs = ibp.postProcessPropertyValues(pvs, filteredPds, bw.getWrappedInstance(), beanName);
 						if (pvs == null) {
 							return;
@@ -1647,14 +1652,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			else {
 				String propertyName = pv.getName();
 				Object originalValue = pv.getValue();
-				// 解析xml配置中的属性值，如果依赖的属性是引用bean，byName从beanFactory获取bean
-				// 配置的属性值如果使用SPEL表达式，会使用注册到beanFactory的StandardBeanExpressionResolver（ApplicationContext会显式注册）解析表达式的值
+				// 属性赋值前，计算<property>中使用的SPEL表达式的值，byName加载<property>声明的依赖bean，放入bd.pv
+				// 使用注册到beanFactory的`BeanExpressionResolver`（ApplicationContext会注册StandardBeanExpressionResolver）解析SPEL表达式
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
 				boolean convertible = bw.isWritableProperty(propertyName) &&
 						!PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
 				if (convertible) {
-					// 筛选BeanWrapper中与bean属性类型匹配的属性编辑器PropertyEditor，来编辑配置文件中的属性字面量，或者转换为bean的实际属性类型
+					// 属性赋值前，使用BeanWrapper的属性编辑器中与bean属性类型匹配的PropertyEditor对bd.pv中的<property>属性字面量编辑或转换为bean的实际属性类型，更新bd.pv
 					convertedValue = convertForProperty(resolvedValue, propertyName, bw, converter);
 				}
 				// Possibly store converted value in merged bean definition,
@@ -1683,7 +1688,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Set our (possibly massaged) deep copy.
 		try {
-			// 属性值填充给bean
+			// 基于bd.pv，填充bean属性值
 			bw.setPropertyValues(new MutablePropertyValues(deepCopy));
 		}
 		catch (BeansException ex) {
