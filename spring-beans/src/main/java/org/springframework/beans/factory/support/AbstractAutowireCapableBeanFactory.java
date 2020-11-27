@@ -470,7 +470,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Prepare method overrides.
-		// 验证并预处理需要覆盖的方法，例如指定了lookup-method、replace-method
+		// 验证bean被override的方法是否存在，指定override方法可以通过配置lookup-method、replace-method
 		try {
 			mbdToUse.prepareMethodOverrides();
 		}
