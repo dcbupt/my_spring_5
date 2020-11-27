@@ -1,4 +1,4 @@
-package autowiremode;
+package populatebean.autowiremode;
 
 public class PolicemanByType {
 

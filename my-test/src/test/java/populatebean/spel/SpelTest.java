@@ -1,4 +1,4 @@
-package spel;
+package populatebean.spel;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @implNote SPEL表达式测试
+ * @implNote SPEL表达式注入测试
  */
 public class SpelTest {
 
@@ -19,7 +19,7 @@ public class SpelTest {
 	@Test
 	@SuppressWarnings("resource")
 	public void xmlSpelTest() {
-		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("spel/SpelTest.xml");
+		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("populatebean/spel/SpelTest.xml");
 		SpelTestBean spelTestBean = (SpelTestBean) ctx.getBean("spelTestBean");
 		assertNotNull(spelTestBean);
 		assertEquals(spelTestBean.getSpelUseName(), "dc");

@@ -1,4 +1,4 @@
-package spel;
+package populatebean.spel;
 
 public class SpelTestBean {
 

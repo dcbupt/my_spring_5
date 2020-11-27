@@ -10,8 +10,19 @@
 
 	<import resource="classpath*:common/CommonConfig.xml"/>
 
-	<bean id="spelTestBean" class="spel.SpelTestBean">
-		<property name="spelUseName" value="#{myTestBean.name}"/>
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="propertyEditorRegistrars">
+			<array>
+				<ref bean="myPropertyEditorRegistrar"/>
+			</array>
+		</property>
+	</bean>
+
+	<bean id="myPropertyEditorRegistrar" class="populatebean.propertyeditor.MyPropertyEditorRegistrar"/>
+
+	<bean id="bossBean" class="populatebean.propertyeditor.BossBean">
+		<property name="name" value="boss_dc"/>
+		<property name="car" value="保时捷,100,100"/>
 	</bean>
 
 </beans>

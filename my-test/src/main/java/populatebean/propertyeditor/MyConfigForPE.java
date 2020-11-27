@@ -1,4 +1,4 @@
-package bean.property;
+package populatebean.propertyeditor;
 
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.factory.config.CustomEditorConfigurer;

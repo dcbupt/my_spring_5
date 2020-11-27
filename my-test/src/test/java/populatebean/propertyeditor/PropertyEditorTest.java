@@ -1,4 +1,4 @@
-package bean.property;
+package populatebean.propertyeditor;
 
 import common.MyTestBean;
 import org.junit.Test;
@@ -18,7 +18,8 @@ public class PropertyEditorTest {
 	@SuppressWarnings("resource")
 	public void propertyEditorTest() {
 		// 编辑<property>设置的属性字面量
-		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("bean.property/BeanPropertyEditorTest.xml");
+		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
+				"populatebean/propertyeditor/BeanPropertyEditorTest.xml");
 		MyTestBean myTestBean = (MyTestBean) ctx.getBean("myTestBean");
 		assertNotNull(myTestBean);
 		System.out.println(myTestBean.getName());
@@ -27,7 +28,7 @@ public class PropertyEditorTest {
 		BossBean bossBean = (BossBean) ctx.getBean("bossBean");
 		assertNotNull(bossBean);
 		assertNotNull(bossBean.getCar());
-		System.out.println(bossBean.getCar().getBrand()+bossBean.getCar().getMaxSpeed()+bossBean.getCar().getPrice());
+		System.out.println(bossBean.getName()+bossBean.getCar().getBrand()+bossBean.getCar().getMaxSpeed()+bossBean.getCar().getPrice());
 	}
 
 	/**

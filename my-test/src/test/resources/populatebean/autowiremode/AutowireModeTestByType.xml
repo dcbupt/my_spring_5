@@ -8,22 +8,8 @@
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
 
-	<import resource="classpath*:common/CommonConfig.xml"/>
+	<bean id="policemanByType" class="populatebean.autowiremode.PolicemanByType" autowire="byType"/>
 
-	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-		<property name="propertyEditorRegistrars">
-			<array>
-				<ref bean="myPropertyEditorRegistrar"/>
-			</array>
-		</property>
-	</bean>
-
-	<bean id="myPropertyEditorRegistrar" class="bean.property.MyPropertyEditorRegistrar"/>
-
-	<bean id="bossBean" class="bean.property.BossBean">
-		<property name="name" value="boss_dc"/>
-		<property name="car" value="保时捷,100,100"/>
-	</bean>
-
+	<bean id="ak47" class="populatebean.autowiremode.AK47"/>
 </beans>
 

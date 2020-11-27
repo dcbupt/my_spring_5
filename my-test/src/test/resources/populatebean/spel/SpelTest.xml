@@ -8,8 +8,11 @@
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
 
-	<bean id="policemanByType" class="autowiremode.PolicemanByType" autowire="byType"/>
+	<import resource="classpath*:common/CommonConfig.xml"/>
 
-	<bean id="ak47" class="autowiremode.AK47"/>
+	<bean id="spelTestBean" class="populatebean.spel.SpelTestBean">
+		<property name="spelUseName" value="#{myTestBean.name}"/>
+	</bean>
+
 </beans>
 

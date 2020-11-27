@@ -1,4 +1,4 @@
-package bean.property;
+package populatebean.propertyeditor;
 
 public class BossBean {
 

@@ -1,4 +1,4 @@
-package autowiremode;
+package populatebean.autowiremode;
 
 import org.junit.Test;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -16,7 +16,8 @@ public class AutowireModeTest {
 	@Test
 	@SuppressWarnings("resource")
 	public void autowireModeByTypeTest() {
-		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("autowiremode/AutowireModeTestByType.xml");
+		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
+				"populatebean/autowiremode/AutowireModeTestByType.xml");
 		PolicemanByType policemanByType = (PolicemanByType) ctx.getBean("policemanByType");
 		assertNotNull(policemanByType);
 		assertNotNull(policemanByType.getGun());
@@ -29,7 +30,8 @@ public class AutowireModeTest {
 	@Test
 	@SuppressWarnings("resource")
 	public void autowireModeByNameTest() {
-		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext("autowiremode/AutowireModeTestByName.xml");
+		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
+				"populatebean/autowiremode/AutowireModeTestByName.xml");
 		PolicemanByName policemanByName = (PolicemanByName) ctx.getBean("policemanByName");
 		assertNotNull(policemanByName);
 		assertNotNull(policemanByName.getAk47());

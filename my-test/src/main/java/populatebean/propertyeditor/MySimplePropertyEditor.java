@@ -1,4 +1,4 @@
-package bean.property;
+package populatebean.propertyeditor;
 
 import org.springframework.util.StringUtils;
 
