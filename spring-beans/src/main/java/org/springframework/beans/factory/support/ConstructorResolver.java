@@ -366,12 +366,15 @@ class ConstructorResolver {
 		Class<?> factoryClass;
 		boolean isStatic;
 
+		// @Bean方式，factoryBeanName就是配置类的类名，从beanFactory加载配置类，调用工厂方法得到bean实例
+		// xml的factory-method配置方式，factoryBeanName为null
 		String factoryBeanName = mbd.getFactoryBeanName();
 		if (factoryBeanName != null) {
 			if (factoryBeanName.equals(beanName)) {
 				throw new BeanDefinitionStoreException(mbd.getResourceDescription(), beanName,
 						"factory-bean reference points back to the same bean definition");
 			}
+			// 从beanFactory加载配置类，
 			factoryBean = this.beanFactory.getBean(factoryBeanName);
 			if (mbd.isSingleton() && this.beanFactory.containsSingleton(beanName)) {
 				throw new ImplicitlyAppearedSingletonException();
@@ -386,6 +389,7 @@ class ConstructorResolver {
 						"bean definition declares neither a bean class nor a factory-bean reference");
 			}
 			factoryBean = null;
+			// xml的factory-method配置方式，从beanClass里反射生成factory，调用工厂方法得到bean实例
 			factoryClass = mbd.getBeanClass();
 			isStatic = true;
 		}
