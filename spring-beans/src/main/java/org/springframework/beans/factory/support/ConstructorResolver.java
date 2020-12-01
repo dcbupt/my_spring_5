@@ -149,10 +149,11 @@ class ConstructorResolver {
 				minNrOfArgs = explicitArgs.length;
 			}
 			else {
-				// bean定义的构造参数
+				// xml配置的构造参数
 				ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
 				resolvedValues = new ConstructorArgumentValues();
-				// 解析构造参数，如果是bean，调用beanFactory.getBean
+				// 解析构造参数，如果是bean，加载依赖的bean，如果是String，解析SPEL表达式的值
+				// 返回配置的构造参数个数
 				minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 			}
 
@@ -161,6 +162,7 @@ class ConstructorResolver {
 			if (candidates == null) {
 				Class<?> beanClass = mbd.getBeanClass();
 				try {
+					// 如果bpp没有指定构造函数，反射获取beanClass的所有构造函数，默认获取所有（public\protected\private\default）构造函数
 					candidates = (mbd.isNonPublicAccessAllowed() ?
 							beanClass.getDeclaredConstructors() : beanClass.getConstructors());
 				}
@@ -183,6 +185,7 @@ class ConstructorResolver {
 					// do not look any further, there are only less greedy constructors left.
 					break;
 				}
+				// 构造函数的参数个数不能小于xml配置的参数个数或外部传入的参数个数
 				if (paramTypes.length < minNrOfArgs) {
 					continue;
 				}
@@ -190,6 +193,7 @@ class ConstructorResolver {
 				ArgumentsHolder argsHolder;
 				if (resolvedValues != null) {
 					try {
+						// 获取构造函数的参数名
 						String[] paramNames = ConstructorPropertiesChecker.evaluate(candidate, paramTypes.length);
 						if (paramNames == null) {
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
