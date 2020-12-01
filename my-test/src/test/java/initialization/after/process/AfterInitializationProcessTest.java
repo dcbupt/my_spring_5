@@ -1,4 +1,4 @@
-package initialization.before.process;
+package initialization.after.process;
 
 import common.MyTestBean;
 import org.junit.Test;
@@ -8,18 +8,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @implNote bean前置初始化处理测试
+ * @implNote bean初始化后置处理测试
  */
-public class BeforeInitializationProcessTest {
+public class AfterInitializationProcessTest {
 
 	@Test
 	@SuppressWarnings("resource")
-	public void beforeInitializationProcessTest() {
+	public void afterInitializationProcessTest() {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
-				"initialization/before/process/BeforeInitializationProcessTest.xml");
+				"initialization/after/process/AfterInitializationProcessTest.xml");
 		MyTestBean myTestBean = (MyTestBean) ctx.getBean("myTestBean");
 		assertNotNull(myTestBean);
-		assertEquals(myTestBean.getName(), "beforeInitializeProcessedBean");
+		assertEquals(myTestBean.getName(), "afterInitializeProcessedBean");
 	}
-
 }
