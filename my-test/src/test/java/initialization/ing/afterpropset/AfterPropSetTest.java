@@ -13,7 +13,7 @@ public class AfterPropSetTest {
 
 	@Test
 	@SuppressWarnings("resource")
-	public void lookupTest() {
+	public void afterPropSetTest() {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"initialization/ing/afterpropset/AfterPropSetTest.xml");
 		AfterPropSetBean afterPropSetBean = (AfterPropSetBean) ctx.getBean("afterPropSetBean");
