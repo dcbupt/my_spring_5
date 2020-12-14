@@ -514,7 +514,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
-			// bd最基本的属性是CL加载的类对象
+			// bd最基本的属性是CL加载的bean类对象
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 			// bean的各种框架属性封装到bd
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
@@ -527,7 +527,7 @@ public class BeanDefinitionParserDelegate {
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
 			// 解析bean的constructor-arg子标签得到构造函数参数，添加到bd.constructorArgumentValues
 			parseConstructorArgElements(ele, bd);
-			// 解析bean的property子标签得到业务属性，添加到bd.propertyValues
+			// 解析bean的property子标签得到业务属性，添加到bd.propertyValues。如果属性值是一个ref，封装成RuntimeBeanReference，如果是一个value，封装成TypedStringValue
 			parsePropertyElements(ele, bd);
 			// 解析bean的qualifier子标签，添加到bd.qualifiers。qualifier的作用是按byName声明要注入的实际bean
 			parseQualifierElements(ele, bd);
