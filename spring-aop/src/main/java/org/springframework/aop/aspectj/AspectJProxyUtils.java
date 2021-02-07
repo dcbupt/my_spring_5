@@ -50,7 +50,7 @@ public abstract class AspectJProxyUtils {
 					foundAspectJAdvice = true;
 				}
 			}
-			// 如果存在基于Aspect注解生成的增强器advisor，增强器链表首部添加一个Spring自身的增强器DefaultPointcutAdvisor
+			// 如果存在基于@Aspect注解生成的增强容器advisor，匹配的增强容器链表首部添加一个Spring实现的DefaultPointcutAdvisor
 			if (foundAspectJAdvice && !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) {
 				advisors.add(0, ExposeInvocationInterceptor.ADVISOR);
 				return true;

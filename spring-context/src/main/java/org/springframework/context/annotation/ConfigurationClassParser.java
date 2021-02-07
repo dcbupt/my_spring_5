@@ -666,7 +666,7 @@ class ConfigurationClassParser {
 					else {
 						// Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
 						// process it as an @Configuration class
-						// 维护ImportClass和引入@Import的配置类注解信息，方便当ImportClass实例化阶段，自省获取引入它的配置类注解信息
+						// 维护ImportClass和引入@Import的配置类注解信息，当ImportClass在bean加载的初始化前置处理阶段，自省获取引入它的配置类注解信息，see ImportAwareBeanPostProcessor
 						this.importStack.registerImport(
 								currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
 						// 如果不是ImportSelector也不是ImportBeanDefinitionRegistrar，当做配置类重新解析

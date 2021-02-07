@@ -171,7 +171,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 		Lifecycle bean = lifecycleBeans.remove(beanName);
 		if (bean != null && bean != this) {
 			String[] dependenciesForBean = getBeanFactory().getDependenciesForBean(beanName);
-			// 优先启动所有Lifycycle bean依赖的beans
+			// 优先启动所有Lifycycle bean依赖的lifecycle beans
 			for (String dependency : dependenciesForBean) {
 				doStart(lifecycleBeans, dependency, autoStartupOnly);
 			}

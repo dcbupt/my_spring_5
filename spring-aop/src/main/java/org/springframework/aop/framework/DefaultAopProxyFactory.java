@@ -48,6 +48,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		// 如果被代理bean没实现用户自定义接口 || 被代理bean的bd.preserveTargetClass=true || apc的bd.proxyTargetClass=true
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
@@ -60,6 +61,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 			return new ObjenesisCglibAopProxy(config);
 		}
 		else {
+			// 如果实现了用户自定义接口，创建JDK动态代理
 			return new JdkDynamicAopProxy(config);
 		}
 	}

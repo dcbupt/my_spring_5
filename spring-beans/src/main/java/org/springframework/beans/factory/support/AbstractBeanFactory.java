@@ -264,7 +264,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			/**
 			 * 获取真正要加载的bean实例
 			 *
-			 * 1、当bean为FactoryBean的实现类，该bean并不是真正想加载的bean，需要调用FactoryBean.getObject方法返回真正要加载的实例
+			 * 当bean为FactoryBean的实现类，该bean并不是真正想加载的bean，需要调用FactoryBean.getObject方法返回真正要加载的实例
 			 * FactoryBean用于一些实例化规则较复杂的bean，例如有很多属性要初始化，可以在factory里完成设置
 			 */
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);

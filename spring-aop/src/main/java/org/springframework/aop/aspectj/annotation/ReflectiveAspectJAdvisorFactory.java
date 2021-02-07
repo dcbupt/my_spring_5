@@ -121,7 +121,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 				new LazySingletonAspectInstanceFactoryDecorator(aspectInstanceFactory);
 
 		List<Advisor> advisors = new ArrayList<>();
-		// 把切面中的每个增强方法封装为一个增强类advisor（advisor包括切面类、增强方法和切点）
+		// 把切面中的每个增强方法（@Around、@Before、@After、@AfterReturning、@AfterThrowing之一的注解修饰）封装为一个增强类advisor（advisor包括pointcut切点类、advice增强类）
 		for (Method method : getAdvisorMethods(aspectClass)) {
 			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);
 			if (advisor != null) {
@@ -192,7 +192,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		validate(aspectInstanceFactory.getAspectMetadata().getAspectClass());
 
-		// 切面中的每个增强方法封装为一个切点
+		// 读取切面中的每个增强方法的切面表达式，封装为一个切点
 		AspectJExpressionPointcut expressionPointcut = getPointcut(
 				candidateAdviceMethod, aspectInstanceFactory.getAspectMetadata().getAspectClass());
 		if (expressionPointcut == null) {

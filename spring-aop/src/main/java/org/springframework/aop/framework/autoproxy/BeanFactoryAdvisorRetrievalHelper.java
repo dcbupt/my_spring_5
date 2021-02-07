@@ -80,6 +80,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 
 		List<Advisor> advisors = new ArrayList<>();
 		for (String name : advisorNames) {
+			// 不同的APC实现类区分要返回哪些候选advisors，例如InfrastructureAdvisorAutoProxyCreator只会返回role=ROLE_INFRASTRUCTURE的基础设施advisor bean
 			if (isEligibleBean(name)) {
 				if (this.beanFactory.isCurrentlyInCreation(name)) {
 					if (logger.isDebugEnabled()) {

@@ -1128,7 +1128,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			return obtainFromSupplier(instanceSupplier, beanName);
 		}
 		// 如果bean存在工厂方法（判断bd.factoryMethodName），调用工厂方法实例化bean
-		// @Bean注解配置的bean，bd的factoryMethodName为@Bean修饰的方法名。加载@Bean的配置类bean，调用工厂方法实例化bean
+		// @Bean注解配置的bean，bd的factoryMethodName和beanName均为@Bean修饰的方法名，调用该方法实例化bean
 		// xml配置方式，bd的factooryMethodName是`factory-method`配置的。通过bd.beanClass反射创建工厂，调用工厂方法实例化bean
 		if (mbd.getFactoryMethodName() != null) {
 			return instantiateUsingFactoryMethod(beanName, mbd, args);

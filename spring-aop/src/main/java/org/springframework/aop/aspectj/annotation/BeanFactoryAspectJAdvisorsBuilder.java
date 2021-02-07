@@ -115,7 +115,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
-								// 切面类中所有的增强方法封装为一个增强类advisor（advisor包括切面类、切点和增强方法）
+								// 切面类中所有的增强方法封装为一个增强类advisor（advisor包括增强器advice和切点pointCut）
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
 									// 如果切面类是单例，缓存生成的所有增强类

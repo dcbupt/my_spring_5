@@ -138,6 +138,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 
+	// key=beanName，value=false说明不需要被增强代理
 	private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
 
@@ -249,8 +250,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
-			// 如果是基础设施bean或者bean就是Aspect注解修饰的切面类，则跳过后续的bean增强代理流程
-			// shouldSkip方法内部会解析所有切面类，针对切面类的每个增强方法生成对应的增强器adivsor，缓存在内存里
+			// 如果是aop基础设施bean（aop相关的实现类 || 使用@Aspect修饰的切面类），缓存beanName到apc，这些bean无需被代理
+			// 如果不是aop基础设施bean，shouldSkip方法里 会获取所有增强容器advisor，包括：（加载所有增强容器advisor bean）&&（@Aspect修饰的切面bean的每个增强方法，创建对应的增强容器adivisor，并添加到map缓存）
+			//	- shouldSkip一般返回false
+			//	- 增强方法是@Around、@Before、@After、@AfterReturning、@AfterThrowing其中之一的注解修饰的方法，实现具体的增强逻辑
+			//	- 增强容器advisor包括增强器advice和切点pointCut
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
 				// 缓存无需增强代理的bean
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
@@ -341,16 +345,15 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
+		// aop组件bean不需要被代理
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
-		/**
-		 * 校验当前bean是否需要被代理
-		 *
-		 * 基础设施类型的bean不需要被代理
-		 * 基于BeanFactory获取所有增强器advisor（获取所有xml定义的增强器advisor、以及解析Aspect注解修饰的切面bean并对每个增强方法生成对应的增强器adivor）并缓存在APC里
-		 * 如果当前bean就是增强器所属的aspect切面，则不需要被代理
-		 */
+		// 如果是aop基础设施bean（aop相关的实现类 || 使用@Aspect修饰的切面类），缓存beanName到apc，这些bean无需被代理
+		// 如果不是aop基础设施bean，shouldSkip方法里 会加载、创建所有增强容器advisor，包括：（加载所有增强容器advisor bean）&&（@Aspect修饰的切面bean的每个增强方法，创建对应的增强容器adivisor，并添加到map缓存）
+		//	- shouldSkip一般返回false
+		//	- 增强方法是@Around、@Before、@After、@AfterReturning、@AfterThrowing其中之一的注解修饰的方法，实现具体的增强逻辑
+		//	- 增强容器advisor包括增强器advice和切点pointCut
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
@@ -358,9 +361,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		// Create proxy if we have advice.
 		/**
-		 * 获取与当前bean匹配的增强器
+		 * 获取与当前bean匹配的增强容器advisor
 		 *
-		 * 从APC的缓存里获取所有增强器advisors
+		 * 筛选候选advisor：从APC的缓存里获取所有增强器advisors（默认）、从@Aspect切面类生成的advisor（AnnotationAwareAspectJAutoProxyCreator定制的）
 		 * 筛选与bean方法匹配成功的增强器advisor
 		 *     - advisor是对切点、aspect切面类、增强方法（before\after\around...）的封装
 		 *     - 基于增强器advisor中切点的methodMatcher，逐一匹配bean的所有方法，如果存在与切点匹配的方法，则说明增强器与bean匹配上
@@ -464,7 +467,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	protected Object createProxy(Class<?> beanClass, @Nullable String beanName,
 			@Nullable Object[] specificInterceptors, TargetSource targetSource) {
 
-		// beanDefinition的属性里填入原始bean的class
+		// beanDefinition的originalTargetClass属性里填入原始bean的class
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory) {
 			AutoProxyUtils.exposeTargetClass((ConfigurableListableBeanFactory) this.beanFactory, beanName, beanClass);
 		}
@@ -472,12 +475,19 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		ProxyFactory proxyFactory = new ProxyFactory();
 		proxyFactory.copyFrom(this);
 
+		/**
+		 * proxyFactory.proxyTargetClass属性继承apc.proxyTargetClass属性（读取bean定义里的proxy-target-class配置）
+		 * 如果proxyFactory.proxyTargetClass=false，动态决定是否设为true：
+		 * 1、如果被代理bean的bd的preserveTargetClass=true，则proxyFactory.proxyTargetClass=true
+		 * 2、如果被代理的bean没有实现用户自定义接口，proxyFactory.proxyTargetClass=true。否则，将被代理bean实现的所有接口添加到proxyFactory
+		 */
 		if (!proxyFactory.isProxyTargetClass()) {
+			// 如果被代理bean的bd的preserveTargetClass=true，则proxyFactory.proxyTargetClass=true
 			if (shouldProxyTargetClass(beanClass, beanName)) {
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
-				// 如果被代理的bean没有实现任何接口，proxyTargetClass=true
+				// 如果被代理的bean没有实现用户自定义接口，proxyFactory.proxyTargetClass=true。否则，将被代理bean实现的所有接口添加到proxyFactory
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
@@ -556,7 +566,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		Advisor[] advisors = new Advisor[allInterceptors.size()];
 		for (int i = 0; i < allInterceptors.size(); i++) {
-			// 对于一些MethodInterceptor，包装成advisor
+			// 如果是MethodInterceptor，包装成DefaultPointcutAdvisor
 			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
 		}
 		return advisors;

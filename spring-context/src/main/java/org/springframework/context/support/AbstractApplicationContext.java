@@ -676,7 +676,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Configure the bean factory with context callbacks.
 		// 注册bpp：bean前置初始化时，Aware自动注入Spring容器组件的bpp
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
-		// 注册bean加载的依赖注入阶段可忽略的Aware接口，忽略Aware引入的依赖，而是通过上面的AwareProcessor实现自动注入
+		// 注册bean加载的自动依赖注入阶段可忽略的Aware接口，忽略Aware引入的依赖，而是通过上面的AwareProcessor实现自动注入
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
@@ -686,7 +686,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// BeanFactory interface not registered as resolvable type in a plain factory.
 		// MessageSource registered (and found for autowiring) as a bean.
-		// 注册已解析的Spring组件对象，如果普通bean需要依赖注入这些Spring组件，从全局BeanFactory的缓存里直接获取
+		// 注册全局的Spring组件对象，如果bean需要byType自动依赖注入的bean类型为这些Spring组件，从全局BeanFactory的缓存里直接获取
 		beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
 		beanFactory.registerResolvableDependency(ResourceLoader.class, this);
 		beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
@@ -861,7 +861,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let post-processors apply to them!
-		// 配置的监听器bean注册到应用事件组播器
+		// 配置的监听器beanName注册到应用事件组播器
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
 		for (String listenerBeanName : listenerBeanNames) {
 			getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);

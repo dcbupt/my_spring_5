@@ -102,7 +102,6 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 		for (Advisor advisor : candidateAdvisors) {
 			if (advisor instanceof AspectJPointcutAdvisor &&
 					((AspectJPointcutAdvisor) advisor).getAspectName().equals(beanName)) {
-				// 如果当前加载的bean就是切面类，则跳过后续的bean代理流程
 				return true;
 			}
 		}
