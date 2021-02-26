@@ -14,17 +14,27 @@ import static org.junit.Assert.assertNotNull;
  */
 public class FactoryBeanTest {
 
-	/**
-	 *
-	 */
 	@Test
 	@SuppressWarnings("resource")
-	public void lookupTest() {
+	public void factoryBeanTest() {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"instantiation/before/factorybean/FactoryBeanTest.xml");
 		MyTestBean myTestBean = (MyTestBean) ctx.getBean("myFactoryBean");
 		assertNotNull(myTestBean);
 		assertEquals(myTestBean.getName(), "dc");
+	}
+
+	/**
+	 * factoryBean注册的bean，只能通过byName注入，byType的话，factoryBean和它注册的bean都是一个类型的...
+	 */
+	@Test
+	@SuppressWarnings("resource")
+	public void factoryBeanAutowireTest() {
+		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
+				"instantiation/before/factorybean/FactoryBeanTest.xml");
+		instantiation.before.factorybean.Test myTestBean = (instantiation.before.factorybean.Test) ctx.getBean("test");
+		assertNotNull(myTestBean);
+		assertEquals(myTestBean.getMyTestBean().getName(), "dc");
 	}
 
 }

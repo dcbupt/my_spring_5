@@ -11,6 +11,7 @@
 	<import resource="classpath*:common/CommonConfig.xml"/>
 
 	<bean id="myFactoryBean" class="instantiation.before.factorybean.MyFactoryBean"/>
+	<bean id="test" class="instantiation.before.factorybean.Test" autowire="byName"/>
 
 </beans>
 
