@@ -5,7 +5,9 @@ import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.context.annotation.ComponentScan;
 
+@ComponentScan
 public class AwareEnableBean implements BeanNameAware, BeanFactoryAware, BeanClassLoaderAware {
 
 	private ClassLoader classLoader;
