@@ -7,9 +7,19 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
+	<beans profile="test">
+		<bean id="testBean" class="beandefinition.TestBean" scope="singleton"/>
+	</beans>
 
-	<bean id="people" class="instantiation.ing.factorymethod.PeopleFactory" factory-method="createPeople"/>
-	<bean id="test" class="instantiation.ing.factorymethod.Test" autowire="byName"/>
+
+	<beans>
+		<bean class="beandefinition.TestBean2">
+			<property name="name"><value>custom</value></property>
+			<property name="age"><value>25</value></property>
+			<meta key="123" value="456"/>
+			<meta key="abc" value="def"/>
+		</bean>
+	</beans>
 
 </beans>
 
