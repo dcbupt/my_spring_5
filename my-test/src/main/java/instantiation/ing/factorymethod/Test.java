@@ -3,14 +3,14 @@ package instantiation.ing.factorymethod;
 public class Test {
 
 	private People people1;
-	private People people;
+	private People peopleFactory;
 
-	public People getPeople() {
-		return people;
+	public People getPeopleFactory() {
+		return peopleFactory;
 	}
 
-	public void setPeople(People people) {
-		this.people = people;
+	public void setPeopleFactory(People peopleFactory) {
+		this.peopleFactory = peopleFactory;
 	}
 
 	public People getPeople1() {

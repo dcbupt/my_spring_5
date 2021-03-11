@@ -8,7 +8,7 @@
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
 
-	<bean id="people" class="instantiation.ing.factorymethod.PeopleFactory" factory-method="createPeople"/>
+	<bean id="peopleFactory" class="instantiation.ing.factorymethod.PeopleFactory" factory-method="createPeople"/>
 	<bean id="test" class="instantiation.ing.factorymethod.Test" autowire="byName"/>
 
 </beans>

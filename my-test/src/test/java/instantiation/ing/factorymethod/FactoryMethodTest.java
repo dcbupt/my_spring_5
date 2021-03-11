@@ -23,9 +23,13 @@ public class FactoryMethodTest {
 	public void xmlFactoryMethodTest() {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"instantiation/ing/factorymethod/FactoryMethodTest.xml");
-		People People = (People) ctx.getBean("people");
-		assertNotNull(People);
-		assertEquals(People.getName(), "dc");
+		People people = (People) ctx.getBean("peopleFactory");
+		People people1 = (People) ctx.getBean(People.class);
+		assertNotNull(people);
+		assertNotNull(people1);
+		assertEquals(people, people1);
+		assertEquals(people.getName(), "dc");
+		assertEquals(people1.getName(), "dc");
 	}
 
 	/**
@@ -52,7 +56,7 @@ public class FactoryMethodTest {
 		assertNotNull(test);
 		// byType时不为null，注入的两个people都是同一个people单例
 		assertNull(test.getPeople1());
-		assertEquals(test.getPeople().getName(), "dc");
+		assertEquals(test.getPeopleFactory().getName(), "dc");
 	}
 
 }
