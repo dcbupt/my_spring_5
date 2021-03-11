@@ -8,10 +8,8 @@
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
 
-	<import resource="classpath*:common/CommonConfig.xml"/>
-
 	<bean id="myFactoryBean" class="instantiation.before.factorybean.MyFactoryBean"/>
-	<bean id="test" class="instantiation.before.factorybean.Test" autowire="byName"/>
+	<bean id="test" class="instantiation.before.factorybean.Test" autowire="byType"/>
 
 </beans>
 

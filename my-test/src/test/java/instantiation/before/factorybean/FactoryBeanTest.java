@@ -14,21 +14,28 @@ import static org.junit.Assert.assertNotNull;
  */
 public class FactoryBeanTest {
 
+	/**
+	 * 工厂bean返回的真正bean实例，可以通过byType方式加载或注入，但如果是byName，只能是工厂bean的beanName，因为真正加载的bean不会注册它的BD
+	 * 所以如果要注入工厂bean创建的bean实例，推荐byType
+	 */
 	@Test
-	@SuppressWarnings("resource")
 	public void factoryBeanTest() {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"instantiation/before/factorybean/FactoryBeanTest.xml");
-		MyTestBean myTestBean = (MyTestBean) ctx.getBean("myTestBean");
+		MyTestBean myTestBean = (MyTestBean) ctx.getBean("myFactoryBean");
+		MyTestBean myTestBean1 = ctx.getBean(MyTestBean.class);
 		assertNotNull(myTestBean);
+		assertNotNull(myTestBean1);
+		assertEquals(myTestBean, myTestBean1);
 		assertEquals(myTestBean.getName(), "dc");
+		assertEquals(myTestBean1.getName(), "dc");
 	}
 
 	/**
-	 * factoryBean注册的bean，只能通过byName注入到其他bean，byType的话，factoryBean类型也是它实际注册的bean类型
+	 * 工厂bean返回的真正bean实例，可以通过byType方式加载或注入，但如果是byName，只能是工厂bean的beanName，因为真正加载的bean不会注册它的BD
+	 * 所以如果要注入工厂bean创建的bean实例，推荐byType
 	 */
 	@Test
-	@SuppressWarnings("resource")
 	public void factoryBeanInjectTest() {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"instantiation/before/factorybean/FactoryBeanTest.xml");
