@@ -11,6 +11,10 @@ import static org.junit.Assert.assertNull;
 /**
  * @implNote 工厂方法实例化bean测试
  * @implNote see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBeanInstance
+ *
+ * factory-method有两种方式：通过xml配置的方式指定，或者通过@Bean方式指定
+ * xml方式和FactoryBean方式基本一致，区别是factory-method所在类不会成为bean，加载realBean时，通过反射调用工厂类的factory-method方法实例化bean，并参与后续bean依赖注入和初始化流程
+ * "@Bean"方式会为配置类和@Bean方法都注册beanDefinition，因此要加载@Bean方式注册的bean和普通bean无区别，本质会得到配置类bean的class类，反射调用factory-method方法（@Bean修饰的方法）实例化realBean，并参与后续bean依赖注入和初始化流程
  */
 public class FactoryMethodTest {
 
@@ -45,8 +49,8 @@ public class FactoryMethodTest {
 	}
 
 	/**
-	 * factory-method方式注册的bean，注入到其他bean时，byType和byName都可以
-	 * 如果是xml方式，byName为工厂bean的beanName，byType为工厂方法返回的类型
+	 * factory-method方式注册的bean
+	 * 如果是xml方式，byFactoryBeanName或者byRealBeanType。@Bean方式创建的就是普通bean，直接byRealBeanName或byRealBeanType即可
 	 */
 	@Test
 	public void factoryMethodBeanInjectTest() {
