@@ -28,7 +28,7 @@ public class FactoryMethodTest {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext(
 				"instantiation/ing/factorymethod/FactoryMethodTest.xml");
 		People people = (People) ctx.getBean("peopleFactory");
-		People people1 = (People) ctx.getBean(People.class);
+		People people1 = ctx.getBean(People.class);
 		assertNotNull(people);
 		assertNotNull(people1);
 		assertEquals(people, people1);
