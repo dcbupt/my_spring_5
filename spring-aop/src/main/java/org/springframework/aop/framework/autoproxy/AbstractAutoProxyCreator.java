@@ -250,7 +250,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
-			// 如果是aop基础设施bean（aop相关的实现类 || 使用@Aspect修饰的切面类），缓存beanName到apc，这些bean无需被代理
+			// 如果是aop基础设施bean（aop相关的实现类，例如Advisor、Advice、Pointcut || 使用@Aspect修饰的切面类），缓存beanName到apc，这些bean无需被代理
 			// 如果不是aop基础设施bean，shouldSkip方法里 会获取所有增强容器advisor，包括：（加载所有增强容器advisor bean）&&（@Aspect修饰的切面bean的每个增强方法，创建对应的增强容器adivisor，并添加到map缓存）
 			//	- shouldSkip一般返回false
 			//	- 增强方法是@Around、@Before、@After、@AfterReturning、@AfterThrowing其中之一的注解修饰的方法，实现具体的增强逻辑
@@ -345,7 +345,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
-		// aop组件bean不需要被代理
+		// aop组件bean和@Aspect定义的切面类不需要被代理
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
@@ -371,7 +371,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		 */
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
-			// 缓存被aop代理的bean
+			// bean需要被代理
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
 			// 创建代理
 			Object proxy = createProxy(
@@ -380,7 +380,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
-
+		// bean无需代理
 		this.advisedBeans.put(cacheKey, Boolean.FALSE);
 		return bean;
 	}

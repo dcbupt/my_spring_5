@@ -187,6 +187,8 @@ public class ClassPathXmlApplicationContextTests {
 		assertTrue(ctx.containsBean("service"));
 		assertTrue(ctx.containsBean("logicOne"));
 		assertTrue(ctx.containsBean("logicTwo"));
+		Logic logic2 = (Logic)ctx.getBean("logicTwo");
+		assertEquals(logic2.getA(), ctx.getBean("wrappedAssemblerOne"));
 		ctx.close();
 	}
 

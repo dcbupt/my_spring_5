@@ -91,12 +91,12 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
-		// 获取所有xml定义的增强容器advisor 和 解析Aspect注解修饰的切面类生成的增强容器advisor
+		// 获取所有增强容器advisor bean，包括配置的advisor和解析Aspect注解修饰的切面类生成的增强容器advisor
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		// 筛选与bean方法匹配成功的增强容器advisor
 		// 基于增强容器advisor的切点pointCut的方法匹配器methodMatcher，逐一匹配bean的所有方法，匹配成功则advisor可用于代理bean
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
-		// 如果存在基于Aspect切面类生成的增强器advisor，bean的增强器链表首部添加一个Spring自身的增强器DefaultPointcutAdvisor
+		// 如果存在基于Aspect切面类生成的增强器advisor：`InstantiationModelAwarePointcutAdvisor`，bean的增强器链表首部添加一个Spring自带的增强器`DefaultPointcutAdvisor`
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);

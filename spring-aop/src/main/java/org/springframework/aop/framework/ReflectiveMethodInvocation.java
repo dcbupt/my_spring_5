@@ -162,7 +162,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	public Object proceed() throws Throwable {
 		// We start with an index of -1 and increment early.
 		// 所有方法拦截器执行完拦截逻辑都会回调代理方法的proceed方法继续执行拦截器链后面的拦截方法
-		// 代理方法调用上下文维护当前调用的拦截器下标，如果所有方法拦截器都执行完毕，则反射调用原始bean的方法
+		// 代理方法调用上下文维护当前调用的拦截器下标，如果所有方法拦截器的invoke方法都被调用了，则反射调用原始bean的方法
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			return invokeJoinpoint();
 		}

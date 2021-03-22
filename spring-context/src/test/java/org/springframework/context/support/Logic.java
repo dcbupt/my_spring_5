@@ -29,6 +29,10 @@ public class Logic implements BeanNameAware {
 		this.a = a;
 	}
 
+	public Assembler getA() {
+		return a;
+	}
+
 	@Override
 	public void setBeanName(String name) {
 		this.name = name;

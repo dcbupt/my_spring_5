@@ -609,9 +609,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
-		// 该方法可被子类覆写来定制哪些环境变量是必须的
-		// demo:
-		// getEnvironment().getRequiredProperty("VAR");
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
@@ -704,7 +701,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Register default environment beans.
-		// 注册一些框架组件SingletonBean到BeanFactory
+		// 系统环境变量以bean的形式注册到BeanFactory
 		if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
 			beanFactory.registerSingleton(ENVIRONMENT_BEAN_NAME, getEnvironment());
 		}
