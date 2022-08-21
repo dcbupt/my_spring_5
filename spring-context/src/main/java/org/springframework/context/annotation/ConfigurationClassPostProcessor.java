@@ -343,8 +343,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			 *
 			 * ConfigurationBean里定义的bean通过上面parse.parse方法解析获取，来自这么几个途径：
 			 * 1、@ComponentScan扫描的@Component和@Configuration
-			 * 2、@Import导入的bean，可能是ImportBeanDefinitionRegistrar，需要回调registrar的注册方法注册真正的bean。也可能是ImportSelector方式导入的bean，也可能就是一个Bean
-			 * 3、@Bean方法定义的bean
+			 * 2、@Import导入的普通bean，也可能是ImportSelector方式指定的普通bean
+			 *
+			 * 这里注册的 bd 只包括@Import 导入的 bean 和@Bean 方式创建的 bean，@ComponentScan 扫到的 bean 在解析 ConfigurationClass 的过程中已经注册了
+			 * 【@Bean 方法、ImportBeanDefinitionRegistrar、@ImportResource 指定的配置文件】会添加到其所属的配置类 ConfigurationClass，然后在这里从 ConfigurationClass 取出并注册 bd
 			 */
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);

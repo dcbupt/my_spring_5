@@ -8,8 +8,12 @@
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
 
-	<bean id="policemanByName" class="populatebean.autowiremode.PolicemanByName" autowire="byName"/>
+	<bean id="policemanByName" class="populatebean.autowiremode.PolicemanByName" autowire="byName">
+		<property name="name" value="police"/>
+	</bean>
 
 	<bean id="ak47" class="populatebean.autowiremode.AK47"/>
+	<bean id="myWeapon" class="populatebean.autowiremode.MyWeapon"/>
+	<bean id="myWeapon2" class="populatebean.autowiremode.MyWeapon2"/>
 </beans>
 

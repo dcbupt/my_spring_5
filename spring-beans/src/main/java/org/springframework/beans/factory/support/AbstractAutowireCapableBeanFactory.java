@@ -677,6 +677,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
+	 * 基于bd确认bean最终的class类型。主要服务于factory-method方式创建的bean
+	 * @Bean方式，通过bd拿到工厂bean（就是配置类）的beanName，加载工厂bean，拿到工厂bean的class反射得到factory-method的returnType
+	 * xml方式指定factory-method，反射拿到工厂类，然后再拿到factory-method的returnType。
+	 * 注意，xml方式的工厂类不会作为bean，factory-method返回的对象才是实际的bean！
+	 *
 	 * Determine the target type for the given bean definition.
 	 * @param beanName the name of the bean (for error handling purposes)
 	 * @param mbd the merged bean definition for the bean
@@ -729,11 +734,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						"factory-bean reference points back to the same bean definition");
 			}
 			// Check declared factory method return type on factory class.
+			// @Bean方式，factoryBeanName就是配置类的beanName，加载FactoryBean拿到FactoryClass
 			factoryClass = getType(factoryBeanName);
 			isStatic = false;
 		}
 		else {
 			// Check declared factory method return type on bean class.
+			// xml配置factory-method方式，通过bd拿到工厂类的全路径，然后反射得到FactoryClass。这种方式，工厂类不会成为bean！
 			factoryClass = resolveBeanClass(mbd, beanName, typesToMatch);
 		}
 
@@ -1116,6 +1123,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) {
 		// Make sure bean class is actually resolved at this point.
+		// 加载bean的class。如果bean是@Bean方式配置的，bd.beanClass=null，此时返回null
 		Class<?> beanClass = resolveBeanClass(mbd, beanName);
 
 		if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {

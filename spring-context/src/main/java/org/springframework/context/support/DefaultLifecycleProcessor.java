@@ -138,7 +138,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	// Internal helpers
 
 	private void startBeans(boolean autoStartupOnly) {
-		// 如果是Spring容器初始化fresh阶段，调用的是LifecycleProcessor#onRefresh方法，此时autoStartupOnly=true，此时只对所有的SmartLifecycle bean分组后，回调start方法
+		// 如果是Spring容器初始化fresh阶段，调用的是LifecycleProcessor#onRefresh方法，此时autoStartupOnly=true，只对所有的SmartLifecycle bean分组后，回调start方法
 		// 如果是单独调LifecycyleProcessor#start方法，autoStartupOnly=false，此时对所有的SmartLifecycle和Lifeclcye bean，分组后回调start方法
 		Map<String, Lifecycle> lifecycleBeans = getLifecycleBeans();
 		Map<Integer, LifecycleGroup> phases = new HashMap<>();

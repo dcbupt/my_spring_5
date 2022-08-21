@@ -91,7 +91,7 @@ abstract class ConfigurationClassUtils {
 
 		AnnotationMetadata metadata;
 		// 如果bean是注解方式注册的（例如@Configuration注解或者@Component注解），从beanDefinition里获取bean的注解信息
-		// 注意，业务层bean都是通过Spring启动类中注册的，例如启动配置类、配置类中@ComponentScan扫描的bean
+		// 注意，业务bean都是通过Spring启动类中注册的，例如启动配置类、配置类中@ComponentScan扫描的bean
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
@@ -115,11 +115,11 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-		// 注解bean包含@Configuration注解，是FullConfigurationBean，bd的attr里打full标
+		// bean包含@Configuration注解，是FullConfigurationBean，bd的attr里打full标
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
-		// 注解bean包含@Component或@Import注解，是LiteConfigurationBean，bd的attr里打lite标
+		// bean包含@Component、@ComponentScan、@Import、@ImportResource注解，或@Bean方式注册的bean，是LiteConfigurationBean，bd的attr里打lite标
 		else if (isLiteConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}

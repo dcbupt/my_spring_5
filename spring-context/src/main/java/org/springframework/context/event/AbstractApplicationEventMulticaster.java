@@ -171,7 +171,7 @@ public abstract class AbstractApplicationEventMulticaster
 	 */
 	protected Collection<ApplicationListener<?>> getApplicationListeners(
 			ApplicationEvent event, ResolvableType eventType) {
-		// 根据事件对象和事件类型查缓存的Listener
+		// 根据事件载体类型和事件类型查缓存的Listener
 		Object source = event.getSource();
 		Class<?> sourceType = (source != null ? source.getClass() : null);
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
@@ -225,7 +225,7 @@ public abstract class AbstractApplicationEventMulticaster
 		for (ApplicationListener<?> listener : listeners) {
 			/**
 			 * 监听器与事件是否匹配的逻辑判断：
-			 * 如果ApplicationListener是GenericApplicationListener，调用它的supportsEventType和supportsSourceType判断事件类型和事件源对象类型是否满足
+			 * 如果ApplicationListener是GenericApplicationListener，调用它的supportsEventType和supportsSourceType判断事件类型和事件载体类型是否满足
 			 * 否则，使用适配器模式包装成一个GenericApplicationListenerAdapter
 			 * 如果ApplicationListener是SmartApplicationListener，调用它的supportsEventType和supportsSourceType判断事件类型和事件源对象类型是否满足
 			 * 否则，只要发布的事件类型为ApplicationListener关注的同级或子级事件类型即可

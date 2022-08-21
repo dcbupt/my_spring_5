@@ -11,9 +11,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class AutowireModeTest {
 
-	/**
-	 * @apiNote byName需要保证bean的属性名是beanName，否则无法注入依赖bean
-	 */
 	@Test
 	@SuppressWarnings("resource")
 	public void autowireModeByTypeTest() {
@@ -26,7 +23,7 @@ public class AutowireModeTest {
 	}
 
 	/**
-	 * @apiNote byName严格限定beanName，byType按类型，限制更宽松。这里按byType也可以注入
+	 * @apiNote byName需要保证bean的属性名是beanName，否则无法注入依赖bean
 	 */
 	@Test
 	@SuppressWarnings("resource")
@@ -36,7 +33,8 @@ public class AutowireModeTest {
 		PolicemanByName policemanByName = (PolicemanByName) ctx.getBean("policemanByName");
 		assertNotNull(policemanByName);
 		assertNotNull(policemanByName.getAk47());
-		policemanByName.getAk47().shoot();
+		assertNotNull(policemanByName.getMyWeapon());
+		assertNotNull(policemanByName.getMyWeapon2());
 	}
 
 }

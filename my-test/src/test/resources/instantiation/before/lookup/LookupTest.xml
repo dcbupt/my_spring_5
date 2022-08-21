@@ -12,8 +12,12 @@
 
 	<bean id="starBucks" class="instantiation.before.lookup.StarBucks"/>
 
-	<bean id="coffeeLover" class="instantiation.before.lookup.CoffeeLover">
+	<bean id="luckInLover" class="instantiation.before.lookup.CoffeeLover">
 		<lookup-method name="lookupCoffee" bean="luckIn"/>
+	</bean>
+
+	<bean id="starBucksLover" class="instantiation.before.lookup.CoffeeLover">
+		<lookup-method name="lookupCoffee" bean="starBucks"/>
 	</bean>
 
 </beans>

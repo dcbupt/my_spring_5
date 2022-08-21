@@ -319,6 +319,7 @@ class ConfigurationClassParser {
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations
+		// 将配置类ImportResource注解指定的配置文件路径添加到ConfigurationClass对象
 		AnnotationAttributes importResource =
 				AnnotationConfigUtils.attributesFor(sourceClass.getMetadata(), ImportResource.class);
 		if (importResource != null) {
@@ -331,7 +332,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process individual @Bean methods
-		// 解析ConfigurationBean的所有@Bean注解修饰的方法，添加到ConfigurationClass里
+		// 将配置类里使用@Bean的方法添加到ConfigurationClass对象
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));

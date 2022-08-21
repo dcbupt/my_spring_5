@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<MyBeans>
+	<MyBean id="123" name="456">
+		<p>p1</p>
+		<p>p2</p>
+	</MyBean>
+	<MyBean id="abc" name="def">
+		<p>p3</p>
+		<p>p4</p>
+	</MyBean>
+</MyBeans>

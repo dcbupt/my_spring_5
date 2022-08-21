@@ -1,6 +1,6 @@
 package populatebean.autowiremode;
 
-public interface Gun {
+public interface Gun extends Weapon {
 
 	void shoot();
 }
